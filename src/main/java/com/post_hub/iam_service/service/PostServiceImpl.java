@@ -1,0 +1,17 @@
+package com.post_hub.iam_service.service;
+
+import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PostMapping;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Service
+public class PostServiceImpl implements PostService {
+	private final List<String> posts = new ArrayList<>();
+
+	@PostMapping
+	public void createPost(String content) {
+		posts.add(content);
+	}
+}
