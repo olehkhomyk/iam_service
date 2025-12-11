@@ -12,6 +12,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Primary
@@ -32,5 +35,27 @@ public class PostServiceImpl implements PostService {
 				.build();
 
 		return IamResponse.createSuccess(postDTO);
+	}
+
+	@Override
+	public IamResponse<ArrayList<PostDTO>> getAll() {
+		List<Post> posts = postRepository.findAll();
+
+		List<PostDTO> postDTOs = posts
+				.stream()
+				.map(post ->
+								PostDTO.builder()
+										.id(post.getId())
+										.title(post.getTitle())
+										.content(post.getContent())
+										.likes(post.getLikes())
+										.created(post.getCreated())
+										.build()
+						)
+				.toList();
+
+		ArrayList<PostDTO> postDTOsArrayList = new ArrayList<>(postDTOs);
+
+		return IamResponse.createSuccess(postDTOsArrayList);
 	}
 }
