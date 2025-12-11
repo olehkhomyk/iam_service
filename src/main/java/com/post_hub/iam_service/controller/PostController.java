@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -26,6 +28,15 @@ public class PostController {
 		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
 
 		IamResponse<PostDTO> response = postService.getById(id);
+
+		return ResponseEntity.ok(response);
+	}
+
+	@GetMapping
+	public ResponseEntity<IamResponse<ArrayList<PostDTO>>> getPosts() {
+		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
+
+		IamResponse<ArrayList<PostDTO>> response = postService.getAll();
 
 		return ResponseEntity.ok(response);
 	}
