@@ -50,10 +50,14 @@ public class PostServiceImpl implements PostService {
 
 	@Override
 	public IamResponse<PostDTO> create(@NotNull PostRequest postRequest) {
+		// Map postRequest to Post, to prepare for saving to db.
 		Post post = postMapper.createPost(postRequest);
+		// Saving Post to db.
 		Post savedPost = postRepository.save(post);
+		// Map post from db to PostDTO
 		PostDTO savedPostDTO = postMapper.toPostDTO(savedPost);
 
+		// Create adn return IamResponse with savedPost.
 		return IamResponse.createSuccess(savedPostDTO);
 	}
 }
