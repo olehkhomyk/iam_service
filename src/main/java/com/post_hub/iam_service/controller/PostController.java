@@ -2,16 +2,14 @@ package com.post_hub.iam_service.controller;
 
 import com.post_hub.iam_service.model.constants.ApiLogMessage;
 import com.post_hub.iam_service.model.dto.Post.PostDTO;
+import com.post_hub.iam_service.model.request.post.PostRequest;
 import com.post_hub.iam_service.model.respsonse.IamResponse;
 import com.post_hub.iam_service.service.PostService;
 import com.post_hub.iam_service.utils.ApiUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 
@@ -28,7 +26,6 @@ public class PostController {
 		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
 
 		IamResponse<PostDTO> response = postService.getById(id);
-
 		return ResponseEntity.ok(response);
 	}
 
@@ -37,7 +34,14 @@ public class PostController {
 		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
 
 		IamResponse<ArrayList<PostDTO>> response = postService.getAll();
+		return ResponseEntity.ok(response);
+	}
 
+	@PostMapping("${end.point.create}")
+	public ResponseEntity<IamResponse<PostDTO>> createPost(@RequestBody PostRequest postRequest) {
+		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
+
+		IamResponse<PostDTO> response = postService.create(postRequest);
 		return ResponseEntity.ok(response);
 	}
 }
