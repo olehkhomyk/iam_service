@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PostDTO implements Serializable {
-
 	private Integer id;
 	private String title;
 	private String content;

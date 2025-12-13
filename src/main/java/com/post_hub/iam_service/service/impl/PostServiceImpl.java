@@ -1,5 +1,6 @@
 package com.post_hub.iam_service.service.impl;
 
+import com.post_hub.iam_service.mapper.PostMapper;
 import com.post_hub.iam_service.model.constants.ApiErrorMessage;
 import com.post_hub.iam_service.model.dto.Post.PostDTO;
 import com.post_hub.iam_service.model.entities.Post;
@@ -20,19 +21,14 @@ import java.util.List;
 @Primary
 public class PostServiceImpl implements PostService {
 	private final PostRepository postRepository;
+	private final PostMapper postMapper;
 
 	@Override
 	public IamResponse<PostDTO> getById(@NotNull Integer id) {
 		Post post = postRepository.findById(id)
 				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.POST_NOT_FOUND_BY_ID.getMessage(id)));
 
-		PostDTO postDTO = PostDTO.builder()
-				.id(post.getId())
-				.title(post.getTitle())
-				.content(post.getContent())
-				.likes(post.getLikes())
-				.created(post.getCreated())
-				.build();
+		PostDTO postDTO = postMapper.toPostDTO(post);
 
 		return IamResponse.createSuccess(postDTO);
 	}
@@ -43,15 +39,7 @@ public class PostServiceImpl implements PostService {
 
 		List<PostDTO> postDTOs = posts
 				.stream()
-				.map(post ->
-								PostDTO.builder()
-										.id(post.getId())
-										.title(post.getTitle())
-										.content(post.getContent())
-										.likes(post.getLikes())
-										.created(post.getCreated())
-										.build()
-						)
+				.map(postMapper::toPostDTO)
 				.toList();
 
 		ArrayList<PostDTO> postDTOsArrayList = new ArrayList<>(postDTOs);
