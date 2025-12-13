@@ -4,6 +4,7 @@ import com.post_hub.iam_service.mapper.PostMapper;
 import com.post_hub.iam_service.model.constants.ApiErrorMessage;
 import com.post_hub.iam_service.model.dto.Post.PostDTO;
 import com.post_hub.iam_service.model.entities.Post;
+import com.post_hub.iam_service.model.exception.DataExistsException;
 import com.post_hub.iam_service.model.exception.NotFoundException;
 import com.post_hub.iam_service.model.request.post.PostRequest;
 import com.post_hub.iam_service.model.respsonse.IamResponse;
@@ -50,6 +51,10 @@ public class PostServiceImpl implements PostService {
 
 	@Override
 	public IamResponse<PostDTO> create(@NotNull PostRequest postRequest) {
+		if (postRepository.existsByTitle(postRequest.getTitle())) {
+			throw new DataExistsException(ApiErrorMessage.POST_ALREADY_EXISTS.getMessage(postRequest.getTitle()));
+		}
+
 		// Map postRequest to Post, to prepare for saving to db.
 		Post post = postMapper.createPost(postRequest);
 		// Saving Post to db.
