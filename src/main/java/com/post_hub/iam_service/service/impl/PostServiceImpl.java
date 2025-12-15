@@ -7,6 +7,7 @@ import com.post_hub.iam_service.model.entities.Post;
 import com.post_hub.iam_service.model.exception.DataExistsException;
 import com.post_hub.iam_service.model.exception.NotFoundException;
 import com.post_hub.iam_service.model.request.post.PostRequest;
+import com.post_hub.iam_service.model.request.post.UpdatePostRequest;
 import com.post_hub.iam_service.model.respsonse.IamResponse;
 import com.post_hub.iam_service.repository.PostRepository;
 import com.post_hub.iam_service.service.PostService;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,19 +52,37 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
-	public IamResponse<PostDTO> create(@NotNull PostRequest postRequest) {
-		if (postRepository.existsByTitle(postRequest.getTitle())) {
-			throw new DataExistsException(ApiErrorMessage.POST_ALREADY_EXISTS.getMessage(postRequest.getTitle()));
+	public IamResponse<PostDTO> create(@NotNull PostRequest request) {
+		if (postRepository.existsByTitle(request.getTitle())) {
+			throw new DataExistsException(ApiErrorMessage.POST_ALREADY_EXISTS.getMessage(request.getTitle()));
 		}
 
 		// Map postRequest to Post, to prepare for saving to db.
-		Post post = postMapper.createPost(postRequest);
+		Post post = postMapper.createPost(request);
 		// Saving Post to db.
 		Post savedPost = postRepository.save(post);
 		// Map post from db to PostDTO
 		PostDTO savedPostDTO = postMapper.toPostDTO(savedPost);
 
 		// Create adn return IamResponse with savedPost.
+		return IamResponse.createSuccess(savedPostDTO);
+	}
+
+	@Override
+	public IamResponse<PostDTO> update(@NotNull Integer id, @NotNull UpdatePostRequest request) {
+		Post post = postRepository.findById(id)
+				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.POST_NOT_FOUND_BY_ID.getMessage(id)));
+
+		postMapper.updatePost(post, request);
+		post.setUpdated(LocalDateTime.now());
+
+		if (postRepository.existsByTitle(post.getTitle())) {
+			throw new DataExistsException(ApiErrorMessage.POST_ALREADY_EXISTS.getMessage(request.getTitle()));
+		}
+
+		Post savedPost = postRepository.save(post);
+
+		PostDTO savedPostDTO = postMapper.toPostDTO(savedPost);
 		return IamResponse.createSuccess(savedPostDTO);
 	}
 }
