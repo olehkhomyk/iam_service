@@ -2,18 +2,21 @@ package com.post_hub.iam_service.controller;
 
 import com.post_hub.iam_service.model.constants.ApiLogMessage;
 import com.post_hub.iam_service.model.dto.Post.PostDTO;
+import com.post_hub.iam_service.model.dto.Post.PostSearchDTO;
 import com.post_hub.iam_service.model.request.post.PostRequest;
 import com.post_hub.iam_service.model.request.post.UpdatePostRequest;
 import com.post_hub.iam_service.model.respsonse.IamResponse;
+import com.post_hub.iam_service.model.respsonse.PaginationResponse;
 import com.post_hub.iam_service.service.PostService;
 import com.post_hub.iam_service.utils.ApiUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Pageable;
 
-import java.util.ArrayList;
 
 @Slf4j
 @RestController
@@ -31,11 +34,16 @@ public class PostController {
 		return ResponseEntity.ok(response);
 	}
 
-	@GetMapping
-	public ResponseEntity<IamResponse<ArrayList<PostDTO>>> getPosts() {
+	@GetMapping("${end.point.all}")
+	public ResponseEntity<IamResponse<PaginationResponse<PostSearchDTO>>> getAllPosts(
+			@RequestParam(name = "page", defaultValue = "0") int page,
+			@RequestParam(name = "limit", defaultValue = "10") int limit
+	) {
 		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
 
-		IamResponse<ArrayList<PostDTO>> response = postService.getAll();
+		Pageable pageable = PageRequest.of(page, limit);
+		IamResponse<PaginationResponse<PostSearchDTO>> response = postService.findAllPosts(pageable);
+
 		return ResponseEntity.ok(response);
 	}
 
@@ -56,5 +64,15 @@ public class PostController {
 
 		IamResponse<PostDTO> updatedPost = postService.update(id, request);
 		return ResponseEntity.ok(updatedPost);
+	}
+
+	@DeleteMapping("${end.point.id}")
+	public ResponseEntity<Void> softDeletePostById(
+			@PathVariable(name = "id") Integer id) {
+		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
+
+		postService.sofDeletePost(id);
+
+		return ResponseEntity.ok().build();
 	}
 }
