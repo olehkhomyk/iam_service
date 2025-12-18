@@ -3,6 +3,7 @@ package com.post_hub.iam_service.service;
 import com.post_hub.iam_service.model.dto.Post.PostDTO;
 import com.post_hub.iam_service.model.dto.Post.PostSearchDTO;
 import com.post_hub.iam_service.model.request.post.PostRequest;
+import com.post_hub.iam_service.model.request.post.PostSearchRequest;
 import com.post_hub.iam_service.model.request.post.UpdatePostRequest;
 import com.post_hub.iam_service.model.respsonse.IamResponse;
 import com.post_hub.iam_service.model.respsonse.PaginationResponse;
@@ -20,4 +21,6 @@ public interface PostService {
 	void sofDeletePost(@NotNull Integer id);
 
 	IamResponse<PaginationResponse<PostSearchDTO>> findAllPosts(Pageable pageable);
+
+	IamResponse<PaginationResponse<PostSearchDTO>> searchPosts(@NotNull PostSearchRequest request, Pageable pageable);
 }
