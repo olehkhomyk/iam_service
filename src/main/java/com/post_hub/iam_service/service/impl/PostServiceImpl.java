@@ -2,8 +2,8 @@ package com.post_hub.iam_service.service.impl;
 
 import com.post_hub.iam_service.mapper.PostMapper;
 import com.post_hub.iam_service.model.constants.ApiErrorMessage;
-import com.post_hub.iam_service.model.dto.Post.PostDTO;
-import com.post_hub.iam_service.model.dto.Post.PostSearchDTO;
+import com.post_hub.iam_service.model.dto.post.PostDTO;
+import com.post_hub.iam_service.model.dto.post.PostSearchDTO;
 import com.post_hub.iam_service.model.entities.Post;
 import com.post_hub.iam_service.model.exception.DataExistsException;
 import com.post_hub.iam_service.model.exception.NotFoundException;

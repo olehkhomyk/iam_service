@@ -1,8 +1,8 @@
 package com.post_hub.iam_service.controller;
 
 import com.post_hub.iam_service.model.constants.ApiLogMessage;
-import com.post_hub.iam_service.model.dto.Post.PostDTO;
-import com.post_hub.iam_service.model.dto.Post.PostSearchDTO;
+import com.post_hub.iam_service.model.dto.post.PostDTO;
+import com.post_hub.iam_service.model.dto.post.PostSearchDTO;
 import com.post_hub.iam_service.model.request.post.PostRequest;
 import com.post_hub.iam_service.model.request.post.PostSearchRequest;
 import com.post_hub.iam_service.model.request.post.UpdatePostRequest;
@@ -15,11 +15,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Pageable;
 
 
 @Slf4j
+@Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("${end.point.posts}")
