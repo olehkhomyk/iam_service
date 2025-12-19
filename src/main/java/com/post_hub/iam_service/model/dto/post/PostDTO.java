@@ -1,4 +1,4 @@
-package com.post_hub.iam_service.model.dto.Post;
+package com.post_hub.iam_service.model.dto.post;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

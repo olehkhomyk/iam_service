@@ -1,7 +1,7 @@
 package com.post_hub.iam_service.service;
 
-import com.post_hub.iam_service.model.dto.Post.PostDTO;
-import com.post_hub.iam_service.model.dto.Post.PostSearchDTO;
+import com.post_hub.iam_service.model.dto.post.PostDTO;
+import com.post_hub.iam_service.model.dto.post.PostSearchDTO;
 import com.post_hub.iam_service.model.request.post.PostRequest;
 import com.post_hub.iam_service.model.request.post.PostSearchRequest;
 import com.post_hub.iam_service.model.request.post.UpdatePostRequest;
