@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private Integer id;
 
 	@Size(max = 30)
 	@Column(nullable = false, length = 30, unique = true)
@@ -35,11 +35,11 @@ public class User {
 
 	@CreationTimestamp
 	@Column(nullable = false, updatable = false)
-	private LocalDateTime created;
+	private LocalDateTime created = LocalDateTime.now();
 
 	@UpdateTimestamp
 	@Column(nullable = false)
-	private LocalDateTime updated;
+	private LocalDateTime updated = LocalDateTime.now();
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "registration_status", nullable = false)
