@@ -4,7 +4,9 @@ import com.post_hub.iam_service.mapper.UserMapper;
 import com.post_hub.iam_service.model.constants.ApiErrorMessage;
 import com.post_hub.iam_service.model.dto.user.UserDTO;
 import com.post_hub.iam_service.model.entities.User;
+import com.post_hub.iam_service.model.exception.DataExistsException;
 import com.post_hub.iam_service.model.exception.NotFoundException;
+import com.post_hub.iam_service.model.request.user.NewUserRequest;
 import com.post_hub.iam_service.model.respsonse.IamResponse;
 import com.post_hub.iam_service.repository.UserRepository;
 import com.post_hub.iam_service.service.UserService;
@@ -18,7 +20,6 @@ public class UserServiceImpl implements UserService {
 	private final UserRepository userRepository;
 	private final UserMapper userMapper;
 
-
 	@Override
 	public IamResponse<UserDTO> getById(@NotNull Integer userId) {
 		User user = userRepository.findById(userId)
@@ -27,5 +28,29 @@ public class UserServiceImpl implements UserService {
 		UserDTO userDTO = userMapper.toDTO(user);
 
 		return IamResponse.createSuccess(userDTO);
+	}
+
+	@Override
+	public IamResponse<UserDTO> createUser(@NotNull NewUserRequest request) {
+		validateUserDoesNotExist(request);
+
+		User user = userMapper.toCreateUser(request);
+		User savedUser = userRepository.save(user);
+		UserDTO userDTO = userMapper.toDTO(savedUser);
+
+		return IamResponse.createSuccess(userDTO);
+	}
+
+	private void validateUserDoesNotExist(NewUserRequest request) {
+		if (userRepository.existsByEmail(request.getEmail())) {
+			throw new DataExistsException(
+					ApiErrorMessage.USER_EMAIL_ALREADY_EXISTS.getMessage(request.getEmail())
+			);
+		}
+		if (userRepository.existsByUsername(request.getUsername())) {
+			throw new DataExistsException(
+					ApiErrorMessage.USERNAME_ALREADY_EXISTS.getMessage(request.getUsername())
+			);
+		}
 	}
 }
