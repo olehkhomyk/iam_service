@@ -5,6 +5,7 @@ import com.post_hub.iam_service.model.constants.ApiErrorMessage;
 import com.post_hub.iam_service.model.dto.post.PostDTO;
 import com.post_hub.iam_service.model.dto.post.PostSearchDTO;
 import com.post_hub.iam_service.model.entities.Post;
+import com.post_hub.iam_service.model.entities.User;
 import com.post_hub.iam_service.model.exception.DataExistsException;
 import com.post_hub.iam_service.model.exception.NotFoundException;
 import com.post_hub.iam_service.model.request.post.PostRequest;
@@ -13,6 +14,7 @@ import com.post_hub.iam_service.model.request.post.UpdatePostRequest;
 import com.post_hub.iam_service.model.respsonse.IamResponse;
 import com.post_hub.iam_service.model.respsonse.PaginationResponse;
 import com.post_hub.iam_service.repository.PostRepository;
+import com.post_hub.iam_service.repository.UserRepository;
 import com.post_hub.iam_service.repository.criteria.PostSearchCriteria;
 import com.post_hub.iam_service.service.PostService;
 import jakarta.validation.constraints.NotNull;
@@ -21,6 +23,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.repository.Repository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -31,6 +34,7 @@ import java.time.LocalDateTime;
 public class PostServiceImpl implements PostService {
 	private final PostRepository postRepository;
 	private final PostMapper postMapper;
+	private final UserRepository userRepository;
 
 	@Override
 	public IamResponse<PostDTO> getById(@NotNull Integer id) {
@@ -43,13 +47,16 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
-	public IamResponse<PostDTO> create(@NotNull PostRequest request) {
-		if (postRepository.existsByTitle(request.getTitle())) {
-			throw new DataExistsException(ApiErrorMessage.POST_ALREADY_EXISTS.getMessage(request.getTitle()));
+	public IamResponse<PostDTO> create(Integer userId, PostRequest postRequest) {
+		if (postRepository.existsByTitle(postRequest.getTitle())) {
+			throw new DataExistsException(ApiErrorMessage.POST_ALREADY_EXISTS.getMessage(postRequest.getTitle()));
 		}
 
+		User user = userRepository.findById(userId)
+				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.USER_NOT_FOUND_BY_ID.getMessage(userId)));
+
 		// Map postRequest to Post, to prepare for saving to db.
-		Post post = postMapper.createPost(request);
+		Post post = postMapper.createPost(postRequest, user);
 		// Saving Post to db.
 		Post savedPost = postRepository.save(post);
 		// Map post from db to PostDTO
@@ -60,15 +67,15 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
-	public IamResponse<PostDTO> update(@NotNull Integer id, @NotNull UpdatePostRequest request) {
+	public IamResponse<PostDTO> update(@NotNull Integer id, @NotNull UpdatePostRequest postRequest) {
 		Post post = postRepository.findByIdAndDeletedFalse(id)
 				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.POST_NOT_FOUND_BY_ID.getMessage(id)));
 
-		postMapper.updatePost(post, request);
+		postMapper.updatePost(post, postRequest);
 		post.setUpdated(LocalDateTime.now());
 
 		if (postRepository.existsByTitle(post.getTitle())) {
-			throw new DataExistsException(ApiErrorMessage.POST_ALREADY_EXISTS.getMessage(request.getTitle()));
+			throw new DataExistsException(ApiErrorMessage.POST_ALREADY_EXISTS.getMessage(postRequest.getTitle()));
 		}
 
 		Post savedPost = postRepository.save(post);

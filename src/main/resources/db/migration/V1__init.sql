@@ -13,13 +13,16 @@ CREATE TABLE users
 
 CREATE TABLE posts
 (
-    id      BIGSERIAL PRIMARY KEY,
-    title   VARCHAR(255) NOT NULL,
-    content TEXT         NOT NULL,
-    created TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    deleted BOOLEAN      NOT NULL DEFAULT false,
-    likes   INTEGER      NOT NULL DEFAULT 0,
+    id         BIGSERIAL PRIMARY KEY,
+    user_id    INTEGER      NOT NULL,
+    title      VARCHAR(255) NOT NULL,
+    content    TEXT         NOT NULL,
+    created    TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated    TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted    BOOLEAN      NOT NULL DEFAULT false,
+    likes      INTEGER      NOT NULL DEFAULT 0,
+    created_by VARCHAR(50),
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     UNIQUE (title)
 );
 
@@ -31,7 +34,7 @@ VALUES ('first_user', 'password', 'first_user@gmail,com', CURRENT_TIMESTAMP, CUR
        ('third_user', 'password', 'third_user@gmail,com', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'ACTIVE',
         CURRENT_TIMESTAMP, false);
 
-INSERT INTO posts (title, content, created, updated, deleted, likes)
-VALUES ('First Post', 'This is my first post in this application', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false, 10),
-       ('Second Post', 'This is another post in the application', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false, 6);
+INSERT INTO posts (user_id, title, content, created, updated, deleted, likes)
+VALUES (1, 'First Post', 'This is my first post in this application', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false, 10),
+       (1, 'Second Post', 'This is another post in the application', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false, 6);
 
