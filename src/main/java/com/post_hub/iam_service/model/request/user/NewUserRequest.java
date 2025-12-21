@@ -11,15 +11,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class NewUserRequest {
 
-	@NotBlank(message = "username must not be blank")
+	@NotBlank(message = "Username must not be blank")
 	@Size(max = 30)
 	private String username;
 
-	@NotBlank(message = "password must not be blank")
+	@NotBlank(message = "Password must not be blank")
 	@Size(max = 50)
 	private String password;
 
-	@NotBlank(message = "email must not be blank")
+	@NotBlank(message = "Email must not be blank")
 	@Size(max = 50)
 	private String email;
 }
