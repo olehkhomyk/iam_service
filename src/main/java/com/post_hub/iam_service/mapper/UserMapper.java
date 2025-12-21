@@ -19,5 +19,5 @@ public interface UserMapper {
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "created", ignore = true)
 	@Mapping(target = "registrationStatus", expression = "java(RegistrationStatus.ACTIVE)")
-	User toCreateUser(NewUserRequest userDTO);
+	User createUser(NewUserRequest userDTO);
 }

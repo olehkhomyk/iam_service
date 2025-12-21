@@ -3,6 +3,7 @@ package com.post_hub.iam_service.mapper;
 import com.post_hub.iam_service.model.dto.post.PostDTO;
 import com.post_hub.iam_service.model.dto.post.PostSearchDTO;
 import com.post_hub.iam_service.model.entities.Post;
+import com.post_hub.iam_service.model.entities.User;
 import com.post_hub.iam_service.model.request.post.PostRequest;
 import com.post_hub.iam_service.model.request.post.UpdatePostRequest;
 import org.hibernate.type.descriptor.DateTimeUtils;
@@ -31,12 +32,15 @@ public interface PostMapper {
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "created", ignore = true)
 	// No needs to create @Mapping for rest fields as their names matches
-	Post createPost(PostRequest postRequest);
+	@Mapping(target = "user", source = "user")
+	@Mapping(target = "createdBy", source = "user.username")
+	Post createPost(PostRequest postRequest, User user);
 
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "created", ignore = true)
 	void updatePost(@MappingTarget Post post, UpdatePostRequest request);
 
 	@Mapping(source = "deleted", target = "isDeleted")
+	@Mapping(target = "createdBy", source = "user.username")
 	PostSearchDTO toPostSearchDTO(Post post);
 }

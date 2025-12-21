@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService {
 	public IamResponse<UserDTO> createUser(@NotNull NewUserRequest request) {
 		validateUserDoesNotExist(request);
 
-		User user = userMapper.toCreateUser(request);
+		User user = userMapper.createUser(request);
 		User savedUser = userRepository.save(user);
 		UserDTO userDTO = userMapper.toDTO(savedUser);
 

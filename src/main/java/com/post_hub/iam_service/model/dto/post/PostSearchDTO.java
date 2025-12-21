@@ -18,4 +18,5 @@ public class PostSearchDTO implements Serializable {
 	private LocalDateTime created;
 	private LocalDateTime updated;
 	private Boolean isDeleted;
+	private String createdBy;
 }
