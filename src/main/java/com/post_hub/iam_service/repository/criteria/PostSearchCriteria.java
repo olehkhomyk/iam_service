@@ -72,8 +72,8 @@ public class PostSearchCriteria implements Specification<Post> {
 	private void sort(Root<Post> root, CriteriaBuilder criteriaBuilder, CriteriaQuery<?> query) {
 		if (Objects.nonNull(request.getSortField())) {
 			switch (request.getSortField()) {
-				case TITLE -> query.orderBy(criteriaBuilder.desc(root.get(Post.TITLE_FIELD_NAME)));
-				case CONTENT -> query.orderBy(criteriaBuilder.desc(root.get(Post.CONTENT_FIELD_NAME)));
+				case TITLE -> query.orderBy(criteriaBuilder.asc(root.get(Post.TITLE_FIELD_NAME)));
+				case CONTENT -> query.orderBy(criteriaBuilder.asc(root.get(Post.CONTENT_FIELD_NAME)));
 				case LIKES -> query.orderBy(criteriaBuilder.desc(root.get(Post.LIKES_FIELD_NAME)));
 				default -> query.orderBy(criteriaBuilder.desc(root.get(Post.ID_FIELD_NAME)));
 			}

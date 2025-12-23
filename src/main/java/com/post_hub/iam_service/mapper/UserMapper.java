@@ -1,6 +1,7 @@
 package com.post_hub.iam_service.mapper;
 
 import com.post_hub.iam_service.model.dto.user.UserDTO;
+import com.post_hub.iam_service.model.dto.user.UserSearchDTO;
 import com.post_hub.iam_service.model.entities.User;
 import com.post_hub.iam_service.model.enums.RegistrationStatus;
 import com.post_hub.iam_service.model.request.user.NewUserRequest;
@@ -27,4 +28,7 @@ public interface UserMapper {
 	@Mapping(target = "created", ignore = true)
 	// Mapping target means mutate target entity;
 	void updateUser(@MappingTarget User user, UpdateUserRequest request);
+
+	@Mapping(source = "deleted", target = "isDeleted")
+	UserSearchDTO toUserSearchDTO(User user);
 }
