@@ -2,14 +2,19 @@ package com.post_hub.iam_service.controller;
 
 import com.post_hub.iam_service.model.constants.ApiLogMessage;
 import com.post_hub.iam_service.model.dto.user.UserDTO;
+import com.post_hub.iam_service.model.dto.user.UserSearchDTO;
 import com.post_hub.iam_service.model.request.user.NewUserRequest;
 import com.post_hub.iam_service.model.request.user.UpdateUserRequest;
+import com.post_hub.iam_service.model.request.user.UserSearchRequest;
 import com.post_hub.iam_service.model.respsonse.IamResponse;
+import com.post_hub.iam_service.model.respsonse.PaginationResponse;
 import com.post_hub.iam_service.service.UserService;
 import com.post_hub.iam_service.utils.ApiUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -51,4 +56,25 @@ public class UserController {
 		return ResponseEntity.ok(updatedUser);
 	}
 
+	@DeleteMapping("${end.point.id}")
+	public ResponseEntity<Void> softDeleteUserById(@PathVariable(name="id") Integer id) {
+		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
+
+		userService.softDeleteUserById(id);
+
+		return ResponseEntity.ok().build();
+	}
+
+	@PostMapping("${end.point.search}")
+	public ResponseEntity<IamResponse<PaginationResponse<UserSearchDTO>>> searchUsers(
+		@RequestBody @Valid UserSearchRequest request,
+		@RequestParam(name = "page", defaultValue = "0") int page,
+		@RequestParam(name = "limit", defaultValue = "10") int limit) {
+		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
+
+		Pageable pageable = PageRequest.of(page, limit);
+		IamResponse<PaginationResponse<UserSearchDTO>> response = userService.searchUsers(request, pageable);
+
+		return ResponseEntity.ok(response);
+	}
 }

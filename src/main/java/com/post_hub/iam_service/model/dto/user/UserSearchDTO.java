@@ -5,18 +5,17 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class UserDTO implements Serializable {
-	private Integer id;
+@AllArgsConstructor
+public class UserSearchDTO {
+	private String id;
 	private String username;
 	private String email;
-	private LocalDateTime created;
-	private LocalDateTime lastLogin;
-	private Boolean isDeleted;
 	private RegistrationStatus registrationStatus;
+	private LocalDateTime created;
+	private Boolean isDeleted;
+	private LocalDateTime lastLogin;
 }
