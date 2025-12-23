@@ -73,14 +73,9 @@ public class PostServiceImpl implements PostService {
 
 		postMapper.updatePost(post, postRequest);
 		post.setUpdated(LocalDateTime.now());
-
-		if (postRepository.existsByTitle(post.getTitle())) {
-			throw new DataExistsException(ApiErrorMessage.POST_ALREADY_EXISTS.getMessage(postRequest.getTitle()));
-		}
-
 		Post savedPost = postRepository.save(post);
-
 		PostDTO savedPostDTO = postMapper.toPostDTO(savedPost);
+
 		return IamResponse.createSuccess(savedPostDTO);
 	}
 
