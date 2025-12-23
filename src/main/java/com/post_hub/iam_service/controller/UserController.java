@@ -3,6 +3,7 @@ package com.post_hub.iam_service.controller;
 import com.post_hub.iam_service.model.constants.ApiLogMessage;
 import com.post_hub.iam_service.model.dto.user.UserDTO;
 import com.post_hub.iam_service.model.request.user.NewUserRequest;
+import com.post_hub.iam_service.model.request.user.UpdateUserRequest;
 import com.post_hub.iam_service.model.respsonse.IamResponse;
 import com.post_hub.iam_service.service.UserService;
 import com.post_hub.iam_service.utils.ApiUtils;
@@ -38,4 +39,16 @@ public class UserController {
 
 		return ResponseEntity.ok(response);
 	}
+
+	@PutMapping("${end.point.id}")
+	public ResponseEntity<IamResponse<UserDTO>> updateUser(
+			@PathVariable(name = "id") Integer id,
+			@Valid @RequestBody UpdateUserRequest request) {
+		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
+
+		IamResponse<UserDTO> updatedUser = userService.updateUserById(id, request);
+
+		return ResponseEntity.ok(updatedUser);
+	}
+
 }
