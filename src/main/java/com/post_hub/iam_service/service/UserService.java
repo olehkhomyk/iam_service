@@ -19,5 +19,7 @@ public interface UserService {
 
 	void softDeleteUserById(@NotNull Integer id);
 
+	void hardDeleteUserById(@NotNull Integer id);
+
 	IamResponse<PaginationResponse<UserSearchDTO>> searchUsers(@NotNull UserSearchRequest request, Pageable pageable);
 }

@@ -65,6 +65,15 @@ public class UserController {
 		return ResponseEntity.ok().build();
 	}
 
+	@DeleteMapping("${end.point.id}/hard")
+	public ResponseEntity<Void> hardDeleteUserById(@PathVariable(name="id") Integer id) {
+		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
+
+		userService.hardDeleteUserById(id);
+
+		return ResponseEntity.ok().build();
+	}
+
 	@PostMapping("${end.point.search}")
 	public ResponseEntity<IamResponse<PaginationResponse<UserSearchDTO>>> searchUsers(
 		@RequestBody @Valid UserSearchRequest request,
