@@ -20,6 +20,8 @@ public interface PostService {
 
 	void sofDeletePost(@NotNull Integer id);
 
+	void hardDeletePost(@NotNull Integer id);
+
 	IamResponse<PaginationResponse<PostSearchDTO>> findAllPosts(Pageable pageable);
 
 	IamResponse<PaginationResponse<PostSearchDTO>> searchPosts(@NotNull PostSearchRequest request, Pageable pageable);

@@ -88,6 +88,15 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
+	public void hardDeletePost(Integer id) {
+		if (!postRepository.existsById(id)) {
+			throw new NotFoundException(ApiErrorMessage.POST_NOT_FOUND_BY_ID.getMessage(id));
+		}
+
+		postRepository.deleteById(id);
+	}
+
+	@Override
 	public IamResponse<PaginationResponse<PostSearchDTO>> findAllPosts(Pageable pageable) {
 		Page<PostSearchDTO> posts = postRepository.findAll(pageable)
 				.map(postMapper::toPostSearchDTO);

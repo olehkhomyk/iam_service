@@ -82,6 +82,16 @@ public class PostController {
 		return ResponseEntity.ok().build();
 	}
 
+	@DeleteMapping("${end.point.id}/hard")
+	public ResponseEntity<Void> hardDeletePostById(
+			@PathVariable(name = "id") Integer id) {
+		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
+
+		postService.hardDeletePost(id);
+
+		return ResponseEntity.ok().build();
+	}
+
 	@PostMapping("${end.point.search}")
 	public ResponseEntity<IamResponse<PaginationResponse<PostSearchDTO>>> searchPosts(
 			@RequestBody @Valid PostSearchRequest request,
