@@ -32,7 +32,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public IamResponse<UserDTO> getById(@NotNull Integer userId) {
-		User user = userRepository.findById(userId)
+		User user = userRepository.findByIdAndDeletedFalse(userId)
 				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.USER_NOT_FOUND_BY_ID.getMessage(userId)));
 
 		UserDTO userDTO = userMapper.toDTO(user);
@@ -53,7 +53,7 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public IamResponse<UserDTO> updateUserById(@NotNull Integer id, @NotNull UpdateUserRequest request) {
-		User user = userRepository.findById(id)
+		User user = userRepository.findByIdAndDeletedFalse(id)
 				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.USER_NOT_FOUND_BY_ID.getMessage(id)));
 
 		userMapper.updateUser(user, request);
