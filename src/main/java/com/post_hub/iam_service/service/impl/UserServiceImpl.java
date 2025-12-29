@@ -66,11 +66,20 @@ public class UserServiceImpl implements UserService {
 
 	@Override
 	public void softDeleteUserById(Integer id) {
-		User user = userRepository.findById(id)
+		User user = userRepository.findByIdAndDeletedFalse(id)
 				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.USER_NOT_FOUND_BY_ID.getMessage(id)));
 
 		user.setDeleted(true);
 		userRepository.save(user);
+	}
+
+	@Override
+	public void hardDeleteUserById(Integer id) {
+		if (!userRepository.existsById(id)) {
+			throw new NotFoundException(ApiErrorMessage.USER_NOT_FOUND_BY_ID.getMessage(id));
+		}
+
+		userRepository.deleteById(id);
 	}
 
 	@Override
