@@ -22,4 +22,6 @@ public interface UserService {
 	void hardDeleteUserById(@NotNull Integer id);
 
 	IamResponse<PaginationResponse<UserSearchDTO>> searchUsers(@NotNull UserSearchRequest request, Pageable pageable);
+
+	IamResponse<PaginationResponse<UserSearchDTO>> findAllUsers(Pageable pageable);
 }
