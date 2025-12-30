@@ -86,4 +86,16 @@ public class UserController {
 
 		return ResponseEntity.ok(response);
 	}
+
+	@PostMapping("${end.point.all}")
+	public ResponseEntity<IamResponse<PaginationResponse<UserSearchDTO>>> getAllUsers(
+		@RequestParam(name = "page", defaultValue = "0") int page,
+		@RequestParam(name = "limit", defaultValue = "10") int limit) {
+		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
+
+		Pageable pageable = PageRequest.of(page, limit);
+		IamResponse<PaginationResponse<UserSearchDTO>> response = userService.findAllUsers(pageable);
+
+		return ResponseEntity.ok(response);
+	}
 }

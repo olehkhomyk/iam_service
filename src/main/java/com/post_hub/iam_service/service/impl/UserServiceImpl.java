@@ -102,6 +102,25 @@ public class UserServiceImpl implements UserService {
 		return IamResponse.createSuccess(response);
 	}
 
+	@Override
+	public IamResponse<PaginationResponse<UserSearchDTO>> findAllUsers(Pageable pageable) {
+		Page<UserSearchDTO> users = userRepository.findAll(pageable)
+				.map(userMapper::toUserSearchDTO);
+
+		PaginationResponse<UserSearchDTO> response = PaginationResponse.<UserSearchDTO>builder()
+				.content(users.getContent())
+				.pagination(
+						PaginationResponse.Pagination.builder()
+								.total(users.getTotalElements())
+								.limit(pageable.getPageSize())
+								.page(users.getNumber() + 1)
+								.pages(users.getTotalPages())
+								.build()
+				).build();
+
+		return IamResponse.createSuccess(response);
+	}
+
 	private void validateUserAlreadyExists(NewUserRequest request) {
 		if (userRepository.existsByEmail(request.getEmail())) {
 			throw new DataExistsException(
