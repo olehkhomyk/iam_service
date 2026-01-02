@@ -27,11 +27,11 @@ CREATE TABLE posts
 );
 
 INSERT INTO users(username, password, email, created, updated, registration_status, last_login, deleted)
-VALUES ('first_user', 'password', 'first_user@gmail,com', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'ACTIVE',
+VALUES ('first_user', '$2a$10$tz2HuTsgsIe57aIplaCHTe2BqJoFmgzzzeRdnpWPMVvjdHtgVeHfi', 'first_user@gmail,com', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'ACTIVE',
         CURRENT_TIMESTAMP, false),
-       ('second_user', 'password', 'second_user@gmail,com', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'ACTIVE',
+       ('second_user', '$2a$10$QWsJl3i00KlbFwlRZNek7O/kl6y9JeT6BkjyB3QpMcEjeh9ZH1BoK', 'second_user@gmail,com', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'ACTIVE',
         CURRENT_TIMESTAMP, false),
-       ('third_user', 'password', 'third_user@gmail,com', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'ACTIVE',
+       ('third_user', '$2a$10$SWJPNBakg31Hf1nXHDNxtufSdDbrBqBol4Xts3mhxOatlFsPCvjPS', 'third_user@gmail,com', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'ACTIVE',
         CURRENT_TIMESTAMP, false);
 
 INSERT INTO posts (user_id, title, content, created, updated, deleted, likes)
