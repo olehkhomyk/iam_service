@@ -87,7 +87,7 @@ public class UserController {
 		return ResponseEntity.ok(response);
 	}
 
-	@PostMapping("${end.point.all}")
+	@GetMapping("${end.point.all}")
 	public ResponseEntity<IamResponse<PaginationResponse<UserSearchDTO>>> getAllUsers(
 		@RequestParam(name = "page", defaultValue = "0") int page,
 		@RequestParam(name = "limit", defaultValue = "10") int limit) {
