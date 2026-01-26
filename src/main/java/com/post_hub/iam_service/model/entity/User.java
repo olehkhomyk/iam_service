@@ -1,4 +1,4 @@
-package com.post_hub.iam_service.model.entities;
+package com.post_hub.iam_service.model.entity;
 
 import com.post_hub.iam_service.model.enums.RegistrationStatus;
 import jakarta.persistence.*;
@@ -10,6 +10,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 @Entity
@@ -64,4 +65,12 @@ public class User {
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Post> posts;
+
+	@ManyToMany
+	@JoinTable(
+			name = "users_roles",
+			joinColumns = @JoinColumn(name = "user_id"),
+			inverseJoinColumns = @JoinColumn(name = "role_id")
+	)
+	private Collection<Role> roles;
 }

@@ -12,6 +12,7 @@ public enum ApiErrorMessage {
 	USER_NOT_FOUND_BY_ID("User wit ID: %s was not found"),
 	USERNAME_ALREADY_EXISTS("User with email: %s already exists"),
 	USER_EMAIL_ALREADY_EXISTS("User with email: %s already exists"),
+	ROLE_NOT_FOUND("Role with name: %s was not found"),
 	;
 
 	private final String message;
