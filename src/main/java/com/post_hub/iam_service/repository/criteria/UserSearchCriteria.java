@@ -1,6 +1,6 @@
 package com.post_hub.iam_service.repository.criteria;
 
-import com.post_hub.iam_service.model.entities.User;
+import com.post_hub.iam_service.model.entity.User;
 import com.post_hub.iam_service.model.request.user.UserSearchRequest;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;

@@ -4,7 +4,8 @@ import com.post_hub.iam_service.mapper.UserMapper;
 import com.post_hub.iam_service.model.constants.ApiErrorMessage;
 import com.post_hub.iam_service.model.dto.user.UserDTO;
 import com.post_hub.iam_service.model.dto.user.UserSearchDTO;
-import com.post_hub.iam_service.model.entities.User;
+import com.post_hub.iam_service.model.entity.Role;
+import com.post_hub.iam_service.model.entity.User;
 import com.post_hub.iam_service.model.exception.DataExistsException;
 import com.post_hub.iam_service.model.exception.NotFoundException;
 import com.post_hub.iam_service.model.request.user.NewUserRequest;
@@ -12,9 +13,11 @@ import com.post_hub.iam_service.model.request.user.UpdateUserRequest;
 import com.post_hub.iam_service.model.request.user.UserSearchRequest;
 import com.post_hub.iam_service.model.respsonse.IamResponse;
 import com.post_hub.iam_service.model.respsonse.PaginationResponse;
+import com.post_hub.iam_service.repository.RoleRepository;
 import com.post_hub.iam_service.repository.UserRepository;
 import com.post_hub.iam_service.repository.criteria.UserSearchCriteria;
 import com.post_hub.iam_service.service.UserService;
+import com.post_hub.iam_service.service.model.IamServiceUserRole;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,6 +27,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +36,7 @@ public class UserServiceImpl implements UserService {
 	private final UserRepository userRepository;
 	private final UserMapper userMapper;
 	private final PasswordEncoder passwordEncoder;
+	private final RoleRepository roleRepository;
 
 	@Override
 	public IamResponse<UserDTO> getById(@NotNull Integer userId) {
@@ -46,8 +52,15 @@ public class UserServiceImpl implements UserService {
 	public IamResponse<UserDTO> createUser(@NotNull NewUserRequest request) {
 		validateUserAlreadyExists(request);
 
+		Role userRole = roleRepository.findByName(IamServiceUserRole.USER.getRole())
+				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.ROLE_NOT_FOUND.getMessage(IamServiceUserRole.USER.getRole())));
+
 		User user = userMapper.createUser(request);
 		user.setPassword(passwordEncoder.encode(request.getPassword()));
+		Set<Role> roles = new HashSet<>();
+		roles.add(userRole);
+		user.setRoles(roles);
+
 		User savedUser = userRepository.save(user);
 		UserDTO userDTO = userMapper.toDTO(savedUser);
 

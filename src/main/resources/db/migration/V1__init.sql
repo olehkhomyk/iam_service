@@ -26,15 +26,45 @@ CREATE TABLE posts
     UNIQUE (title)
 );
 
+CREATE TABLE roles
+(
+    id               SERIAL PRIMARY KEY,
+    name             VARCHAR(50) NOT NULL,
+    user_system_role VARCHAR(64) NOT NULL,
+    active           BOOLEAN     NOT NULL DEFAULT true,
+    created_by       VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE users_roles
+(
+    user_id BIGINT NOT NULL,
+    role_id INT    NOT NULL,
+    PRIMARY KEY (user_id, role_id),
+    FOREIGN KEY (user_id) REFERENCES users (id),
+    FOREIGN KEY (role_id) REFERENCES roles (id)
+);
+
 INSERT INTO users(username, password, email, created, updated, registration_status, last_login, deleted)
-VALUES ('first_user', '$2a$10$tz2HuTsgsIe57aIplaCHTe2BqJoFmgzzzeRdnpWPMVvjdHtgVeHfi', 'first_user@gmail,com', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'ACTIVE',
+VALUES ('super_admin', '$2a$10$tz2HuTsgsIe57aIplaCHTe2BqJoFmgzzzeRdnpWPMVvjdHtgVeHfi', 'superadmin@gmail,com',
+        CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'ACTIVE',
         CURRENT_TIMESTAMP, false),
-       ('second_user', '$2a$10$QWsJl3i00KlbFwlRZNek7O/kl6y9JeT6BkjyB3QpMcEjeh9ZH1BoK', 'second_user@gmail,com', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'ACTIVE',
+       ('admin', '$2a$10$QWsJl3i00KlbFwlRZNek7O/kl6y9JeT6BkjyB3QpMcEjeh9ZH1BoK', 'admin@gmail,com',
+        CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'ACTIVE',
         CURRENT_TIMESTAMP, false),
-       ('third_user', '$2a$10$SWJPNBakg31Hf1nXHDNxtufSdDbrBqBol4Xts3mhxOatlFsPCvjPS', 'third_user@gmail,com', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'ACTIVE',
+       ('user', '$2a$10$SWJPNBakg31Hf1nXHDNxtufSdDbrBqBol4Xts3mhxOatlFsPCvjPS', 'user@gmail,com',
+        CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 'ACTIVE',
         CURRENT_TIMESTAMP, false);
 
 INSERT INTO posts (user_id, title, content, created, updated, deleted, likes)
 VALUES (1, 'First Post', 'This is my first post in this application', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false, 10),
        (1, 'Second Post', 'This is another post in the application', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, false, 6);
 
+INSERT INTO roles (name, user_system_role, created_by)
+VALUES ('SUPER_ADMIN', 'SUPER_ADMIN', 'SUPER_ADMIN'),
+       ('ADMIN', 'ADMIN', 'SUPER_ADMIN'),
+       ('USER', 'USER', 'SUPER_ADMIN');
+
+INSERT INTO users_roles (user_id, role_id)
+VALUES (1, 1),
+       (2, 2),
+       (3, 3);
