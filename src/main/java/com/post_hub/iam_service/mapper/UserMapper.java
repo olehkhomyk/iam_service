@@ -19,7 +19,7 @@ import java.util.List;
 @Mapper(
 		componentModel = "spring",
 		nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
-		imports = {RegistrationStatus.class, Object.class}
+		imports = { RegistrationStatus.class, Object.class }
 )
 public interface UserMapper {
 	@Mapping(target = "roles", expression = "java(mapRoles(user.getRoles()))")
