@@ -2,6 +2,7 @@ package com.post_hub.iam_service.mapper;
 
 import com.post_hub.iam_service.model.dto.role.RoleDto;
 import com.post_hub.iam_service.model.dto.user.UserDTO;
+import com.post_hub.iam_service.model.dto.user.UserProfileDTO;
 import com.post_hub.iam_service.model.dto.user.UserSearchDTO;
 import com.post_hub.iam_service.model.entity.Role;
 import com.post_hub.iam_service.model.entity.User;
@@ -39,6 +40,11 @@ public interface UserMapper {
 	// Mapping target means mutate target entity;
 	void updateUser(@MappingTarget User user, UpdateUserRequest request);
 
+	@Mapping(target = "roles", expression = "java(mapRoles(user.getRoles()))")
+	@Mapping(target = "username", source = "user.username")
+	@Mapping(target = "email", source = "user.email")
+	@Mapping(target = "token", source = "token")
+	UserProfileDTO toUserProfileDTO(User user, String token);
 
 	default List<RoleDto> mapRoles(Collection<Role> roles) {
 		return roles.stream()

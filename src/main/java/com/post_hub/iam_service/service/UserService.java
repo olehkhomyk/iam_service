@@ -9,8 +9,9 @@ import com.post_hub.iam_service.model.respsonse.IamResponse;
 import com.post_hub.iam_service.model.respsonse.PaginationResponse;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
-public interface UserService {
+public interface UserService extends UserDetailsService {
 	IamResponse<UserDTO> getById(@NotNull Integer id);
 
 	IamResponse<UserDTO> createUser(@NotNull NewUserRequest request);
