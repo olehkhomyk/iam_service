@@ -42,7 +42,6 @@ public class AuthServiceImpl implements AuthService {
 
 		String token = jwtTokenProvider.generateToken(user);
 		UserProfileDTO userProfileDTO = userMapper.toUserProfileDTO(user, token);
-		userProfileDTO.setToken(token);
 
 		return IamResponse.createSuccessfulWithNewToken(userProfileDTO);
 	}
