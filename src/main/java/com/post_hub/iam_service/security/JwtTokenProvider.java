@@ -44,7 +44,8 @@ public class JwtTokenProvider {
 				.collect(Collectors.toList());
 		claims.put(AuthenticationConstants.ROLE, rolesList);
 
-		return createToken(claims, user.getEmail());
+		String token = createToken(claims, user.getEmail());
+		return token;
 	}
 
 	public String refreshToken(String token) {
@@ -58,7 +59,7 @@ public class JwtTokenProvider {
 					.verifyWith(secretKey)
 					.build()
 					.parseSignedClaims(token);
-			return !claims.getBody().getExpiration().before(new Date());
+			return claims.getPayload().getExpiration().after(new Date());
 		} catch (JwtException | IllegalArgumentException e) {
 			return false;
 		}
