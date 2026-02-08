@@ -4,12 +4,14 @@ import com.post_hub.iam_service.mapper.UserMapper;
 import com.post_hub.iam_service.model.constants.ApiErrorMessage;
 import com.post_hub.iam_service.model.dto.user.LoginRequest;
 import com.post_hub.iam_service.model.dto.user.UserProfileDTO;
+import com.post_hub.iam_service.model.entity.RefreshToken;
 import com.post_hub.iam_service.model.entity.User;
 import com.post_hub.iam_service.model.exception.InvalidDataException;
 import com.post_hub.iam_service.model.respsonse.IamResponse;
 import com.post_hub.iam_service.repository.UserRepository;
 import com.post_hub.iam_service.security.JwtTokenProvider;
 import com.post_hub.iam_service.service.AuthService;
+import com.post_hub.iam_service.service.RefreshTokenService;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +28,7 @@ public class AuthServiceImpl implements AuthService {
 	private final UserMapper userMapper;
 	private final JwtTokenProvider jwtTokenProvider;
 	private final AuthenticationManager authenticationManager;
+	private final RefreshTokenService refreshTokenService;
 
 	@Override
 	public IamResponse<UserProfileDTO> login(@NotNull LoginRequest request) {
@@ -40,8 +43,20 @@ public class AuthServiceImpl implements AuthService {
 		User user = userRepository.findUserByEmailAndDeletedFalse(request.getEmail())
 				.orElseThrow(() -> new InvalidDataException(ApiErrorMessage.INVALID_USER_OR_PASSWORD.getMessage()));
 
+		RefreshToken refreshToken = refreshTokenService.generateOrUpdateRefreshToken(user);
 		String token = jwtTokenProvider.generateToken(user);
-		UserProfileDTO userProfileDTO = userMapper.toUserProfileDTO(user, token);
+		UserProfileDTO userProfileDTO = userMapper.toUserProfileDTO(user, token, refreshToken.getToken());
+
+		return IamResponse.createSuccessfulWithNewToken(userProfileDTO);
+	}
+
+	@Override
+	public IamResponse<UserProfileDTO> refreshAccessToken(String refreshToken) {
+		RefreshToken newRefreshToken = refreshTokenService.valdiateAndRefreshToken(refreshToken);
+		User user = newRefreshToken.getUser();
+
+		String token = jwtTokenProvider.generateToken(user);
+		UserProfileDTO userProfileDTO = userMapper.toUserProfileDTO(user, token, newRefreshToken.getToken());
 
 		return IamResponse.createSuccessfulWithNewToken(userProfileDTO);
 	}

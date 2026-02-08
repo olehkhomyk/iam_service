@@ -33,8 +33,15 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 	private static final String BEARER_PREFIX = "Bearer ";
 	private static final String LOGIN_PATH = "/auth/login";
 	private static final String REGISTER_PATH = "/auth/register";
+	private static final String REFRESH_TOKEN_PATH = "/auth/refresh/token";
 
 	private final JwtTokenProvider jwtTokenProvider;
+
+	@Override
+	protected boolean shouldNotFilter(HttpServletRequest request) {
+		String path = request.getServletPath();
+		return isPublicEndpoint(path);
+	}
 
 	@Override
 	protected void doFilterInternal(
@@ -44,7 +51,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 			throws ServletException, IOException {
 
 		Optional<String> authHeader = Optional.ofNullable(request.getHeader(AUTHORIZATION_HEADER));
-		String requestURI = request.getRequestURI();
 
 		if (authHeader.isPresent() && authHeader.get().startsWith(BEARER_PREFIX)) {
 			String jwt = authHeader.get().substring(BEARER_PREFIX.length());
@@ -53,24 +59,23 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 					throw new ExpiredJwtException(null, null, ApiErrorMessage.TOKEN_EXPIRED.getMessage());
 				}
 
-				Optional<String> emailOpt = Optional.ofNullable(jwtTokenProvider.getEmail(jwt));
-				emailOpt.ifPresent(email -> {
-					if (SecurityContextHolder.getContext().getAuthentication() == null) {
-						List<SimpleGrantedAuthority> authorities = jwtTokenProvider.getRoles(jwt).stream()
-								.map(SimpleGrantedAuthority::new)
-								.collect(Collectors.toList());
+				String email = jwtTokenProvider.getEmail(jwt);
 
-						UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-								email,
-								null,
-								authorities
-						);
-						SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-					}
-				});
+				if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+					List<SimpleGrantedAuthority> authorities = jwtTokenProvider.getRoles(jwt)
+							.stream()
+							.map(SimpleGrantedAuthority::new)
+							.toList();
 
+					UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+							email,
+							null,
+							authorities
+					);
+					SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+				}
 			} catch (ExpiredJwtException e) {
-				handleTokenExpiration(requestURI, jwt, response);
+				handleTokenExpiration(response, e);
 				return;
 			} catch (SignatureException | MalformedJwtException e) {
 				handleSignatureException(response);
@@ -83,13 +88,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 		filterChain.doFilter(request, response);
 	}
 
-	private void handleTokenExpiration(String requestURI, String jwt, HttpServletResponse response) throws IOException {
-		if (isAuthEndpoint(requestURI)) {
-			String refreshedToken = jwtTokenProvider.refreshToken(jwt);
-			response.setHeader(AUTHORIZATION_HEADER, BEARER_PREFIX + refreshedToken);
-		} else {
-			sendErrorResponse(response, HttpStatus.UNAUTHORIZED, ApiErrorMessage.TOKEN_EXPIRED.getMessage());
-		}
+	private void handleTokenExpiration(HttpServletResponse response, Exception e) throws IOException {
+		log.error(ApiErrorMessage.ERROR_DURING_JWT_PROCESSING.getMessage(), e);
+		sendErrorResponse(response, HttpStatus.UNAUTHORIZED, ApiErrorMessage.TOKEN_EXPIRED.getMessage());
 	}
 
 	private void handleSignatureException(HttpServletResponse response) throws IOException {
@@ -106,8 +107,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 		response.getWriter().write(message);
 	}
 
-	private boolean isAuthEndpoint(String uri) {
-		return uri.equals(LOGIN_PATH) || uri.equals(REGISTER_PATH);
+	private boolean isPublicEndpoint(String uri) {
+		return uri.equals(LOGIN_PATH) || uri.equals(REGISTER_PATH) || uri.equals(REFRESH_TOKEN_PATH);
 	}
 }
 
