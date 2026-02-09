@@ -19,6 +19,7 @@ import com.post_hub.iam_service.repository.criteria.PostSearchCriteria;
 import com.post_hub.iam_service.service.PostService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
+@Slf4j  // Add this annotation
 @Service
 @RequiredArgsConstructor
 @Primary
@@ -39,29 +41,26 @@ public class PostServiceImpl implements PostService {
 	public IamResponse<PostDTO> getById(@NotNull Integer id) {
 		Post post = postRepository.findByIdAndDeletedFalse(id)
 				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.POST_NOT_FOUND_BY_ID.getMessage(id)));
-
 		PostDTO postDTO = postMapper.toPostDTO(post);
 
 		return IamResponse.createSuccess(postDTO);
 	}
 
 	@Override
-	public IamResponse<PostDTO> create(Integer userId, PostRequest postRequest) {
+	public IamResponse<PostDTO> create(@NotNull PostRequest postRequest, String username) {
 		if (postRepository.existsByTitle(postRequest.getTitle())) {
 			throw new DataExistException(ApiErrorMessage.POST_ALREADY_EXISTS.getMessage(postRequest.getTitle()));
 		}
 
-		User user = userRepository.findById(userId)
-				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.USER_NOT_FOUND_BY_ID.getMessage(userId)));
+		User user = userRepository.findByUsername(username)
+				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.USERNAME_NOT_FOUND.getMessage(username)));
 
-		// Map postRequest to Post, to prepare for saving to db.
-		Post post = postMapper.createPost(postRequest, user);
-		// Saving Post to db.
+		Post post = postMapper.createPost(postRequest);
+		post.setUser(user);
+		post.setCreatedBy(username);
 		Post savedPost = postRepository.save(post);
-		// Map post from db to PostDTO
 		PostDTO savedPostDTO = postMapper.toPostDTO(savedPost);
 
-		// Create adn return IamResponse with savedPost.
 		return IamResponse.createSuccess(savedPostDTO);
 	}
 

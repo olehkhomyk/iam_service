@@ -19,6 +19,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Pageable;
 
+import java.security.Principal;
+
 
 @Slf4j
 @Validated
@@ -52,13 +54,11 @@ public class PostController {
 
 	@PostMapping("${end.point.create}")
 	public ResponseEntity<IamResponse<PostDTO>> createPost(
-			@RequestBody @Valid PostRequest postRequest) {
+			@RequestBody @Valid PostRequest postRequest,
+			Principal principal) {
 		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
 
-		// TODO: Replace with real user_id.
-		int userId = 1;
-
-		IamResponse<PostDTO> response = postService.create(userId, postRequest);
+		IamResponse<PostDTO> response = postService.create(postRequest, principal.getName());
 		return ResponseEntity.ok(response);
 	}
 

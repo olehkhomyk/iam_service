@@ -13,7 +13,7 @@ public final class ApiConstants {
 	public static final String TIME_ZONE_PACKAGE_NAME = "java.time.zone";
 	public static final String DASH = "-";
 
-	public static final String PASSWORD_ALL_CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabedefghiskLmnoparstuvwxyZ0123456789~ 1②#$%^&＊（）-_=+［く/";
+	public static final String PASSWORD_ALL_CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabedefghiskLmnoparstuvwxyZ0123456789~ 1②#$%^&＊（）-_=+［く/.!";
 	public static final String PASSWORD_LETTERS_UPPER_CASE = "ABCDEFGHIJKLMNOPORSTUVWXYZ";
 	public static final String PASSWORD_LETTERS_LOWER_CASE = "abcdefghiikimoracstuvwxyz";
 	public static final String PASSWORD_DIGITS = "0123456789";

@@ -44,8 +44,7 @@ public class JwtTokenProvider {
 				.collect(Collectors.toList());
 		claims.put(AuthenticationConstants.ROLE, rolesList);
 
-		String token = createToken(claims, user.getEmail());
-		return token;
+		return createToken(claims, user.getEmail());
 	}
 
 	public String refreshToken(String token) {
@@ -65,8 +64,9 @@ public class JwtTokenProvider {
 		}
 	}
 
-	public String getEmail(String token) {
-		return getAllClaimsFromToken(token).getSubject();
+	public String getUserName(String token) {
+		Claims claims = getAllClaimsFromToken(token);
+		return claims.get(AuthenticationConstants.USERNAME, String.class);
 	}
 
 	public List<String> getRoles(String token) {

@@ -16,6 +16,7 @@ import com.post_hub.iam_service.model.respsonse.IamResponse;
 import com.post_hub.iam_service.repository.RoleRepository;
 import com.post_hub.iam_service.repository.UserRepository;
 import com.post_hub.iam_service.security.JwtTokenProvider;
+import com.post_hub.iam_service.security.validatiton.AccessValidator;
 import com.post_hub.iam_service.service.AuthService;
 import com.post_hub.iam_service.service.RefreshTokenService;
 import com.post_hub.iam_service.service.model.IamServiceUserRole;
@@ -43,6 +44,7 @@ public class AuthServiceImpl implements AuthService {
 	private final RefreshTokenService refreshTokenService;
 	private final RoleRepository roleRepository;
 	private final PasswordEncoder passwordEncoder;
+	private final AccessValidator accessValidator;
 
 	@Override
 	public IamResponse<UserProfileDTO> login(@NotNull LoginRequest request) {
@@ -77,16 +79,14 @@ public class AuthServiceImpl implements AuthService {
 
 	@Override
 	public IamResponse<UserProfileDTO> registerUser(@NotNull RegistrationUserRequest request) {
-		validateUserExisting(request);
+		accessValidator.validateNewUser(
+				request.getUsername(),
+				request.getEmail(),
+				request.getPassword()
+		);
 
 		Role userRole = roleRepository.findByName(IamServiceUserRole.USER.getRole())
 				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.ROLE_NOT_FOUND.getMessage()));
-
-		String password = request.getPassword();
-
-		if (PasswordUtils.isNotValidPassword(password)) {
-			throw new InvalidPasswordException(ApiErrorMessage.INVALID_PASSWORD.getMessage());
-		}
 
 		User newUser = userMapper.fromDTO(request);
 		newUser.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -100,17 +100,5 @@ public class AuthServiceImpl implements AuthService {
 		UserProfileDTO userProfileDTO = userMapper.toUserProfileDTO(newUser, token, refreshToken.getToken());
 
 		return IamResponse.createSuccessfulWithNewToken(userProfileDTO);
-	}
-
-	private void validateUserExisting(RegistrationUserRequest request) {
-		userRepository.findByUsername(request.getUsername())
-				.ifPresent(existingUser -> {
-					throw new DataExistException(ApiErrorMessage.USERNAME_ALREADY_EXISTS.getMessage(request.getUsername()));
-				});
-
-		userRepository.findByEmail(request.getEmail())
-				.ifPresent(existingEmail -> {
-					throw new DataExistException(ApiErrorMessage.USER_EMAIL_ALREADY_EXISTS.getMessage(request.getEmail()));
-				});
 	}
 }

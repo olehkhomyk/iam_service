@@ -23,7 +23,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -59,16 +58,16 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 					throw new ExpiredJwtException(null, null, ApiErrorMessage.TOKEN_EXPIRED.getMessage());
 				}
 
-				String email = jwtTokenProvider.getEmail(jwt);
+				String userName = jwtTokenProvider.getUserName(jwt);
 
-				if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+				if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 					List<SimpleGrantedAuthority> authorities = jwtTokenProvider.getRoles(jwt)
 							.stream()
 							.map(SimpleGrantedAuthority::new)
 							.toList();
 
 					UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-							email,
+							userName,
 							null,
 							authorities
 					);
