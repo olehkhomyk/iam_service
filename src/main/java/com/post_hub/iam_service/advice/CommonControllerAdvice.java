@@ -1,7 +1,7 @@
 package com.post_hub.iam_service.advice;
 
 import com.post_hub.iam_service.model.constants.ApiConstants;
-import com.post_hub.iam_service.model.exception.DataExistsException;
+import com.post_hub.iam_service.model.exception.DataExistException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,9 +30,9 @@ public class CommonControllerAdvice {
 				.body(ex.getMessage());
 	}
 
-	@ExceptionHandler(DataExistsException.class)
+	@ExceptionHandler(DataExistException.class)
 	@ResponseBody
-	protected ResponseEntity<String> handleDataExistsException(DataExistsException ex) {
+	protected ResponseEntity<String> handleDataExistException(DataExistException ex) {
 		logStackTrace(ex);
 
 		return ResponseEntity

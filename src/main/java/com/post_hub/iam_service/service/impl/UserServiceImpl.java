@@ -6,7 +6,7 @@ import com.post_hub.iam_service.model.dto.user.UserDTO;
 import com.post_hub.iam_service.model.dto.user.UserSearchDTO;
 import com.post_hub.iam_service.model.entity.Role;
 import com.post_hub.iam_service.model.entity.User;
-import com.post_hub.iam_service.model.exception.DataExistsException;
+import com.post_hub.iam_service.model.exception.DataExistException;
 import com.post_hub.iam_service.model.exception.NotFoundException;
 import com.post_hub.iam_service.model.request.user.NewUserRequest;
 import com.post_hub.iam_service.model.request.user.UpdateUserRequest;
@@ -143,12 +143,12 @@ public class UserServiceImpl implements UserService {
 
 	private void validateUserAlreadyExists(NewUserRequest request) {
 		if (userRepository.existsByEmail(request.getEmail())) {
-			throw new DataExistsException(
+			throw new DataExistException(
 					ApiErrorMessage.USER_EMAIL_ALREADY_EXISTS.getMessage(request.getEmail())
 			);
 		}
 		if (userRepository.existsByUsername(request.getUsername())) {
-			throw new DataExistsException(
+			throw new DataExistException(
 					ApiErrorMessage.USERNAME_ALREADY_EXISTS.getMessage(request.getUsername())
 			);
 		}
@@ -160,7 +160,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	static UserDetails getUserDetails(String email, UserRepository userRepository) {
-		User user = userRepository.findUserByEmail(email)
+		User user = userRepository.findByEmail(email)
 				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.EMAIL_NOT_FOUND.getMessage()));
 
 		user.setLastLogin(LocalDateTime.now());

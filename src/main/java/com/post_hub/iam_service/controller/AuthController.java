@@ -1,8 +1,9 @@
 package com.post_hub.iam_service.controller;
 
 import com.post_hub.iam_service.model.constants.ApiLogMessage;
-import com.post_hub.iam_service.model.dto.user.LoginRequest;
+import com.post_hub.iam_service.model.request.user.LoginRequest;
 import com.post_hub.iam_service.model.dto.user.UserProfileDTO;
+import com.post_hub.iam_service.model.request.user.RegistrationUserRequest;
 import com.post_hub.iam_service.model.respsonse.IamResponse;
 import com.post_hub.iam_service.service.AuthService;
 import com.post_hub.iam_service.utils.ApiUtils;
@@ -22,12 +23,25 @@ public class AuthController {
 	private final AuthService authService;
 
 	@PostMapping("${end.point.login}")
-	public ResponseEntity<?> login(
+	public ResponseEntity<IamResponse<UserProfileDTO>> login(
 			@RequestBody @Valid LoginRequest request,
 			HttpServletResponse response) {
 		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
 
 		IamResponse<UserProfileDTO> result = authService.login(request);
+		Cookie authorizationCookie = ApiUtils.createAuthCookie(result.getPayload().getToken());
+		response.addCookie(authorizationCookie);
+
+		return ResponseEntity.ok(result);
+	}
+
+	@PostMapping("${end.point.register}")
+	public ResponseEntity<IamResponse<UserProfileDTO>> register(
+			@RequestBody @Valid RegistrationUserRequest request,
+			HttpServletResponse response) {
+		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
+
+		IamResponse<UserProfileDTO> result = authService.registerUser(request);
 		Cookie authorizationCookie = ApiUtils.createAuthCookie(result.getPayload().getToken());
 		response.addCookie(authorizationCookie);
 
@@ -47,5 +61,4 @@ public class AuthController {
 
 		return ResponseEntity.ok(result);
 	}
-
 }

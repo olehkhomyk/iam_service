@@ -6,7 +6,7 @@ import com.post_hub.iam_service.model.dto.post.PostDTO;
 import com.post_hub.iam_service.model.dto.post.PostSearchDTO;
 import com.post_hub.iam_service.model.entity.Post;
 import com.post_hub.iam_service.model.entity.User;
-import com.post_hub.iam_service.model.exception.DataExistsException;
+import com.post_hub.iam_service.model.exception.DataExistException;
 import com.post_hub.iam_service.model.exception.NotFoundException;
 import com.post_hub.iam_service.model.request.post.PostRequest;
 import com.post_hub.iam_service.model.request.post.PostSearchRequest;
@@ -48,7 +48,7 @@ public class PostServiceImpl implements PostService {
 	@Override
 	public IamResponse<PostDTO> create(Integer userId, PostRequest postRequest) {
 		if (postRepository.existsByTitle(postRequest.getTitle())) {
-			throw new DataExistsException(ApiErrorMessage.POST_ALREADY_EXISTS.getMessage(postRequest.getTitle()));
+			throw new DataExistException(ApiErrorMessage.POST_ALREADY_EXISTS.getMessage(postRequest.getTitle()));
 		}
 
 		User user = userRepository.findById(userId)
