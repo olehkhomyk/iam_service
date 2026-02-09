@@ -2,6 +2,7 @@ package com.post_hub.iam_service.advice;
 
 import com.post_hub.iam_service.model.constants.ApiConstants;
 import com.post_hub.iam_service.model.exception.DataExistException;
+import com.post_hub.iam_service.model.exception.InvalidPasswordException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -40,12 +42,20 @@ public class CommonControllerAdvice {
 				.body(ex.getMessage());
 	}
 
+	@ExceptionHandler(InvalidPasswordException.class)
+	@ResponseBody
+	public ResponseEntity<String> handleInvalidPasswordException(InvalidPasswordException ex) {
+		return ResponseEntity
+				.status(HttpStatus.BAD_REQUEST)
+				.body(ex.getMessage());
+	}
+
 	@ExceptionHandler(MethodArgumentNotValidException.class)
-	public ResponseEntity<Map<String , String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+	public ResponseEntity<Map<String, String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
 		logStackTrace(ex);
 
 		Map<String, String> errors = new HashMap<>();
-		for  (ObjectError error : ex.getBindingResult().getAllErrors()) {
+		for (ObjectError error : ex.getBindingResult().getAllErrors()) {
 			String errorMessage = error.getDefaultMessage();
 			errors.put("error", errorMessage);
 		}
