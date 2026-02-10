@@ -16,6 +16,7 @@ import com.post_hub.iam_service.model.respsonse.PaginationResponse;
 import com.post_hub.iam_service.repository.PostRepository;
 import com.post_hub.iam_service.repository.UserRepository;
 import com.post_hub.iam_service.repository.criteria.PostSearchCriteria;
+import com.post_hub.iam_service.security.validatiton.AccessValidator;
 import com.post_hub.iam_service.service.PostService;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -36,11 +37,13 @@ public class PostServiceImpl implements PostService {
 	private final PostRepository postRepository;
 	private final PostMapper postMapper;
 	private final UserRepository userRepository;
+	private final AccessValidator accessValidator;
 
 	@Override
 	public IamResponse<PostDTO> getById(@NotNull Integer id) {
 		Post post = postRepository.findByIdAndDeletedFalse(id)
 				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.POST_NOT_FOUND_BY_ID.getMessage(id)));
+
 		PostDTO postDTO = postMapper.toPostDTO(post);
 
 		return IamResponse.createSuccess(postDTO);
@@ -69,6 +72,8 @@ public class PostServiceImpl implements PostService {
 		Post post = postRepository.findByIdAndDeletedFalse(id)
 				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.POST_NOT_FOUND_BY_ID.getMessage(id)));
 
+		accessValidator.validateAdminOrOwnerAccess(post.getUser().getUsername(), post.getCreatedBy());
+
 		postMapper.updatePost(post, postRequest);
 		post.setUpdated(LocalDateTime.now());
 		Post savedPost = postRepository.save(post);
@@ -81,6 +86,8 @@ public class PostServiceImpl implements PostService {
 	public void sofDeletePost(@NotNull Integer id) {
 		Post post = postRepository.findByIdAndDeletedFalse(id)
 				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.POST_NOT_FOUND_BY_ID.getMessage(id)));
+
+		accessValidator.validateAdminOrOwnerAccess(post.getUser().getUsername(), post.getCreatedBy());
 
 		post.setDeleted(true);
 		postRepository.save(post);
