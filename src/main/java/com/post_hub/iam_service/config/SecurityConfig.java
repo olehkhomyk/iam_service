@@ -47,8 +47,6 @@ public class SecurityConfig {
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 						.requestMatchers(NOT_SECURED_URLS).permitAll()
-						.requestMatchers(get("/users/all")).hasAnyAuthority(adminAccessSecurityRoles())
-						.requestMatchers(get("/posts/all")).hasAnyAuthority(adminAccessSecurityRoles())
 						.anyRequest().authenticated()
 				)
 				.exceptionHandling(exceptions -> exceptions
