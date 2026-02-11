@@ -29,7 +29,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
-@Slf4j  // Add this annotation
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Primary
@@ -72,7 +72,7 @@ public class PostServiceImpl implements PostService {
 		Post post = postRepository.findByIdAndDeletedFalse(id)
 				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.POST_NOT_FOUND_BY_ID.getMessage(id)));
 
-		accessValidator.validateAdminOrOwnerAccess(post.getUser().getUsername(), post.getCreatedBy());
+		accessValidator.validateAdminOrOwnerAccess(post.getUser().getId());
 
 		postMapper.updatePost(post, postRequest);
 		post.setUpdated(LocalDateTime.now());
@@ -87,7 +87,7 @@ public class PostServiceImpl implements PostService {
 		Post post = postRepository.findByIdAndDeletedFalse(id)
 				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.POST_NOT_FOUND_BY_ID.getMessage(id)));
 
-		accessValidator.validateAdminOrOwnerAccess(post.getUser().getUsername(), post.getCreatedBy());
+		accessValidator.validateAdminOrOwnerAccess(post.getUser().getId());
 
 		post.setDeleted(true);
 		postRepository.save(post);
