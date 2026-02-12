@@ -7,9 +7,9 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "posts")
 @Getter
 @Setter
+@Table(name = "posts")
 public class Post {
 	public static final String ID_FIELD_NAME = "id";
 	public static final String TITLE_FIELD_NAME = "title";

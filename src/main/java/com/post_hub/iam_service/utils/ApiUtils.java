@@ -6,9 +6,11 @@ import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.UUID;
 
 
@@ -51,6 +53,12 @@ public class ApiUtils {
 
 	public static String getCurrentUserName() {
 		return SecurityContextHolder.getContext().getAuthentication().getName();
+	}
+
+	public List<String> getCurrentUserRoles() {
+		String jwtToken = SecurityContextHolder.getContext().getAuthentication().getCredentials().toString();
+
+		return jwtTokenProvider.getRoles(jwtToken);
 	}
 
 	public Integer getUserIdFromAuthentication() {

@@ -7,12 +7,17 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum ApiErrorMessage {
-	POST_NOT_FOUND_BY_ID("Post wit ID: %s was not found"),
-	POST_ALREADY_EXISTS("Post wit title: %s already exists"),
+
 	USER_NOT_FOUND_BY_ID("User wit ID: %s was not found"),
 	USERNAME_NOT_FOUND("Username: %s was not found"),
 	USERNAME_ALREADY_EXISTS("User with username: %s already exists"),
 	USER_EMAIL_ALREADY_EXISTS("User with email: %s already exists"),
+
+	POST_NOT_FOUND_BY_ID("Post wit ID: %s was not found"),
+	POST_ALREADY_EXISTS("Post wit title: %s already exists"),
+
+	COMMENT_NOT_FOUND_BY_ID("Comment wit ID: %s was not found"),
+
 	ROLE_NOT_FOUND("Role with name: %s was not found"),
 	EMAIL_NOT_FOUND("Email: %s was not found"),
 

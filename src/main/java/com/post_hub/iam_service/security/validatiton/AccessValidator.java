@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 
 @Component
 @RequiredArgsConstructor
@@ -36,6 +38,16 @@ public class AccessValidator {
 		}
 	}
 
+	// TODO: Test for correct work.
+	public boolean isCurrentUserAdminOrSuperAdmin() {
+		List<String> roles = apiUtils.getCurrentUserRoles();
+
+		return roles.stream()
+				.anyMatch(role ->
+						role.equals(IamServiceUserRole.ADMIN.getRole()) ||
+								role.equals(IamServiceUserRole.SUPER_ADMIN.getRole()));
+	}
+
 	public boolean isAdminOrSuperAdmin(Integer userId) {
 		User user = userRepository.findById(userId)
 				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.USER_NOT_FOUND_BY_ID.getMessage(userId)));
@@ -47,10 +59,17 @@ public class AccessValidator {
 								role == IamServiceUserRole.SUPER_ADMIN);
 	}
 
+	public boolean isOwner(Integer ownerId) {
+		Integer currentUserId = apiUtils.getUserIdFromAuthentication();
+
+		return currentUserId.equals(ownerId);
+	}
+
 	public void validateAdminOrOwnerAccess(Integer ownerId) {
 		Integer currentUserId = apiUtils.getUserIdFromAuthentication();
 
-		if (!currentUserId.equals(ownerId) && !isAdminOrSuperAdmin(currentUserId)) {
+		// TODO: Test this updated code. new method "isCurrentUserAdminOrSuperAdmin" is now calling.
+		if (!currentUserId.equals(ownerId) && !isCurrentUserAdminOrSuperAdmin()) {
 			throw new AccessDeniedException(ApiErrorMessage.HAVE_NO_ACCESS.getMessage());
 		}
 	}
