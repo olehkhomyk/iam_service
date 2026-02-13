@@ -26,4 +26,13 @@ public class CommentController {
         IamResponse<CommentDTO> result = commentService.getById(id);
         return ResponseEntity.ok(result);
     }
+
+    @DeleteMapping("${end.point.id}")
+    public ResponseEntity<Void> deleteById(@PathVariable(name = "id") Integer id) {
+        log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
+
+        commentService.deleteById(id);
+
+        return ResponseEntity.ok().build();
+    }
 }
