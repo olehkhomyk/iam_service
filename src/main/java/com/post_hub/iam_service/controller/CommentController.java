@@ -4,11 +4,14 @@ import com.post_hub.iam_service.model.constants.ApiLogMessage;
 import com.post_hub.iam_service.model.dto.comment.CommentDTO;
 import com.post_hub.iam_service.model.request.comment.CommentRequest;
 import com.post_hub.iam_service.model.respsonse.IamResponse;
+import com.post_hub.iam_service.model.respsonse.PaginationResponse;
 import com.post_hub.iam_service.service.CommentService;
 import com.post_hub.iam_service.utils.ApiUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -36,10 +39,15 @@ public class CommentController {
     }
 
     @GetMapping
-    public ResponseEntity<IamResponse<ArrayList<CommentDTO>>> getByPostId(@PathVariable(name = "postId") Integer postId) {
+    public ResponseEntity<IamResponse<PaginationResponse<CommentDTO>>> getByPostId(
+        @PathVariable(name = "postId") Integer postId,
+        @RequestParam(name = "page", defaultValue = "0") int page,
+        @RequestParam(name = "limit", defaultValue = "10") int limit
+    ) {
         log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
+        Pageable pageable = PageRequest.of(page, limit);
 
-        IamResponse<ArrayList<CommentDTO>> result = commentService.getByPostId(postId);
+        IamResponse<PaginationResponse<CommentDTO>> result = commentService.getAllByPostId(postId, pageable);
         return ResponseEntity.ok(result);
     }
 
