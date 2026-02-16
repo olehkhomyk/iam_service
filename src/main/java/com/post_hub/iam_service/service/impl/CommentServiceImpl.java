@@ -58,7 +58,7 @@ public class CommentServiceImpl implements CommentService {
 
 	@Override
 	public IamResponse<CommentDTO> getById(@NotNull Integer postId, @NotNull Integer commentId) {
-		Comment comment = commentRepository.findByIdAndPostId(commentId.longValue(), postId)
+		Comment comment = commentRepository.findByIdAndPostId(commentId, postId)
 				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.COMMENT_NOT_FOUND_BY_ID.getMessage(commentId)));
 
 		CommentDTO commentDTO = commentMapper.toCommentDTO(comment);
@@ -81,7 +81,7 @@ public class CommentServiceImpl implements CommentService {
 	}
 
 	@Override
-	public IamResponse<PaginationResponse<CommentDTO>> getAllByPostId(Integer postId, Pageable pageable) {
+	public IamResponse<PaginationResponse<CommentDTO>> getAllByPostId(@NotNull Integer postId, @NotNull Pageable pageable) {
 		if (!postRepository.existsById(postId)) {
 			throw new NotFoundException(ApiErrorMessage.POST_NOT_FOUND_BY_ID.getMessage(postId));
 		}
@@ -104,7 +104,7 @@ public class CommentServiceImpl implements CommentService {
 
 	@Override
 	public void deleteById(@NotNull Integer postId, @NotNull Integer commentId) {
-		Comment comment = commentRepository.findByIdAndPostId(commentId.longValue(), postId)
+		Comment comment = commentRepository.findByIdAndPostId(commentId, postId)
 				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.COMMENT_NOT_FOUND_BY_ID.getMessage(commentId)));
 
 		accessValidator.validateAdminOrOwnerAccess(comment.getUser().getId());
