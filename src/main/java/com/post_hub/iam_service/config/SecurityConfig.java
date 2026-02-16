@@ -4,6 +4,7 @@ import com.post_hub.iam_service.security.filter.JwtRequestFilter;
 import com.post_hub.iam_service.security.handler.AccessRestrictionHandler;
 import com.post_hub.iam_service.service.UserService;
 import com.post_hub.iam_service.service.model.IamServiceUserRole;
+import jakarta.servlet.DispatcherType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -45,6 +46,10 @@ public class SecurityConfig {
 		http
 				.csrf(AbstractHttpConfigurer::disable)
 				.authorizeHttpRequests(auth -> auth
+						// Allow Spring Boot error dispatching to reach BasicErrorController so invalid URLs become 404
+						.dispatcherTypeMatchers(DispatcherType.ERROR, DispatcherType.FORWARD, DispatcherType.INCLUDE).permitAll()
+						.requestMatchers("/error").permitAll()
+
 						.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 						.requestMatchers(NOT_SECURED_URLS).permitAll()
 						.anyRequest().authenticated()

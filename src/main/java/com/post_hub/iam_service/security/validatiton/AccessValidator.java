@@ -68,7 +68,6 @@ public class AccessValidator {
 	public void validateAdminOrOwnerAccess(Integer ownerId) {
 		Integer currentUserId = apiUtils.getUserIdFromAuthentication();
 
-		// TODO: Test this updated code. new method "isCurrentUserAdminOrSuperAdmin" is now calling.
 		if (!currentUserId.equals(ownerId) && !isCurrentUserAdminOrSuperAdmin()) {
 			throw new AccessDeniedException(ApiErrorMessage.HAVE_NO_ACCESS.getMessage());
 		}

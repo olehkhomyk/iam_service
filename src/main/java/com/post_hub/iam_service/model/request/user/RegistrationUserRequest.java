@@ -11,16 +11,16 @@ import java.io.Serializable;
 @PasswordMatches
 public class RegistrationUserRequest implements Serializable {
 
-	@NotBlank
+	@NotBlank(message = "Username must not be blank!")
 	private String username;
 
 	@Email
-	@NotBlank
+    @NotBlank(message = "Email must not be blank!")
 	private String email;
 
-	@NotBlank
+    @NotBlank(message = "Password must not be blank!")
 	private String password;
 
-	@NotBlank
+    @NotBlank(message = "Confirm password must not be blank!")
 	private String confirmPassword;
 }

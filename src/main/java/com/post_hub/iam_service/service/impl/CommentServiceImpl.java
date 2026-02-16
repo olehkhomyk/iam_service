@@ -4,9 +4,14 @@ import com.post_hub.iam_service.mapper.CommentMapper;
 import com.post_hub.iam_service.model.constants.ApiErrorMessage;
 import com.post_hub.iam_service.model.dto.comment.CommentDTO;
 import com.post_hub.iam_service.model.entity.Comment;
+import com.post_hub.iam_service.model.entity.Post;
+import com.post_hub.iam_service.model.entity.User;
 import com.post_hub.iam_service.model.exception.NotFoundException;
+import com.post_hub.iam_service.model.request.comment.CommentRequest;
 import com.post_hub.iam_service.model.respsonse.IamResponse;
 import com.post_hub.iam_service.repository.CommentRepository;
+import com.post_hub.iam_service.repository.PostRepository;
+import com.post_hub.iam_service.repository.UserRepository;
 import com.post_hub.iam_service.security.validatiton.AccessValidator;
 import com.post_hub.iam_service.service.CommentService;
 import jakarta.validation.constraints.NotNull;
@@ -23,12 +28,34 @@ import java.util.ArrayList;
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
+    private final PostRepository postRepository;
+    private final UserRepository userRepository;
     private final CommentMapper commentMapper;
     private final AccessValidator accessValidator;
 
     @Override
-    public IamResponse<CommentDTO> getById(@NotNull Integer commentId) {
-        Comment comment = commentRepository.findById(commentId)
+    public IamResponse<CommentDTO> create(@NotNull Integer postId, @NotNull CommentRequest commentRequest, String username) {
+        Post post = postRepository.findByIdAndDeletedFalse(postId)
+                .orElseThrow(() -> new NotFoundException(ApiErrorMessage.POST_NOT_FOUND_BY_ID.getMessage(postId)));
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NotFoundException(ApiErrorMessage.USERNAME_NOT_FOUND.getMessage(username)));
+
+        Comment comment = commentMapper.createComment(commentRequest);
+
+        comment.setPost(post);
+        comment.setUser(user);
+        comment.setCreatedBy(username);
+
+        Comment savedComment = commentRepository.save(comment);
+        CommentDTO commentDTO = commentMapper.toCommentDTO(savedComment);
+
+        return IamResponse.createSuccess(commentDTO);
+    }
+
+    @Override
+    public IamResponse<CommentDTO> getById(@NotNull Integer postId, @NotNull Integer commentId) {
+        Comment comment = commentRepository.findByIdAndPostId(commentId.longValue(), postId)
                 .orElseThrow(() -> new NotFoundException(ApiErrorMessage.COMMENT_NOT_FOUND_BY_ID.getMessage(commentId)));
 
         CommentDTO commentDTO = commentMapper.toCommentDTO(comment);
@@ -38,16 +65,25 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public IamResponse<ArrayList<CommentDTO>> getByPostId(@NotNull Integer postId) {
-        return null;
+        if (!postRepository.existsById(postId)) {
+            throw new NotFoundException(ApiErrorMessage.POST_NOT_FOUND_BY_ID.getMessage(postId));
+        }
+
+        ArrayList<CommentDTO> commentDTOs = new ArrayList<>(commentRepository.findAllByPostIdOrderByCreatedAtDesc(postId)
+                .stream()
+                .map(commentMapper::toCommentDTO)
+                .toList());
+
+        return IamResponse.createSuccess(commentDTOs);
     }
 
     @Override
-    public void deleteById(@NotNull Integer commentId) {
-        Comment comment = commentRepository.findById(commentId)
+    public void deleteById(@NotNull Integer postId, @NotNull Integer commentId) {
+        Comment comment = commentRepository.findByIdAndPostId(commentId.longValue(), postId)
                 .orElseThrow(() -> new NotFoundException(ApiErrorMessage.COMMENT_NOT_FOUND_BY_ID.getMessage(commentId)));
 
         accessValidator.validateAdminOrOwnerAccess(comment.getUser().getId());
 
-        commentRepository.deleteById(commentId);
+        commentRepository.deleteById(commentId.longValue());
     }
 }
