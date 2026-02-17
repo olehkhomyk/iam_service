@@ -11,15 +11,15 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 import java.util.Objects;
 
 @Mapper(
-        componentModel = "spring",
-        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
-        imports = {DateTimeUtils.class, Objects.class}
+		componentModel = "spring",
+		nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+		imports = {DateTimeUtils.class, Objects.class}
 )
 public interface CommentMapper {
-    @Mapping(source = "createdAt", target = "createdAt", dateFormat = "yyyy-MM-dd HH:mm:ss")
-    CommentDTO toCommentDTO(Comment comment);
+	@Mapping(source = "createdAt", target = "createdAt", dateFormat = "yyyy-MM-dd HH:mm:ss")
+	CommentDTO toCommentDTO(Comment comment);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    Comment createComment(CommentRequest commentRequest);
+	@Mapping(target = "id", ignore = true)
+	@Mapping(target = "createdAt", ignore = true)
+	Comment createComment(CommentRequest commentRequest);
 }

@@ -21,7 +21,7 @@ import java.util.List;
 @Mapper(
 		componentModel = "spring",
 		nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
-		imports = { RegistrationStatus.class, Object.class }
+		imports = {RegistrationStatus.class, Object.class}
 )
 public interface UserMapper {
 	@Mapping(target = "roles", expression = "java(mapRoles(user.getRoles()))")
@@ -38,7 +38,7 @@ public interface UserMapper {
 
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "created", ignore = true)
-	// Mapping target means mutate target entity;
+		// Mapping target means mutate target entity;
 	void updateUser(@MappingTarget User user, UpdateUserRequest request);
 
 	@Mapping(target = "roles", expression = "java(mapRoles(user.getRoles()))")

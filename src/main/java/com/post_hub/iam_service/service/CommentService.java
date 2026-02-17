@@ -10,13 +10,13 @@ import org.springframework.data.domain.Pageable;
 import java.util.ArrayList;
 
 public interface CommentService {
-    IamResponse<CommentDTO> create(@NotNull Integer postId, @NotNull CommentRequest request, String username);
+	IamResponse<CommentDTO> create(@NotNull Integer postId, @NotNull CommentRequest request, String username);
 
-    IamResponse<CommentDTO> getById(@NotNull Integer postId, @NotNull Integer id);
+	IamResponse<CommentDTO> getById(@NotNull Integer postId, @NotNull Integer id);
 
-    IamResponse<ArrayList<CommentDTO>> getByPostId(@NotNull Integer postId);
+	IamResponse<ArrayList<CommentDTO>> getByPostId(@NotNull Integer postId);
 
-    IamResponse<PaginationResponse<CommentDTO>> getAllByPostId(@NotNull Integer postId, Pageable pageable);
+	IamResponse<PaginationResponse<CommentDTO>> getAllByPostId(@NotNull Integer postId, Pageable pageable);
 
-    void deleteById(@NotNull Integer postId, @NotNull Integer id);
+	void deleteById(@NotNull Integer postId, @NotNull Integer id);
 }

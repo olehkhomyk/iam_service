@@ -27,15 +27,15 @@ public class PostSearchCriteria implements Specification<Post> {
 
 		if (Objects.nonNull(request.getTitle())) {
 			Predicate predicate = criteriaBuilder.like(
-				criteriaBuilder.lower(root.get(Post.TITLE_FIELD_NAME)),
-				"%" + request.getTitle().toLowerCase() + "%"
+					criteriaBuilder.lower(root.get(Post.TITLE_FIELD_NAME)),
+					"%" + request.getTitle().toLowerCase() + "%"
 			);
 			predicates.add(predicate);
 		}
 		if (Objects.nonNull(request.getContent())) {
 			Predicate predicate = criteriaBuilder.like(
-				criteriaBuilder.lower(root.get(Post.CONTENT_FIELD_NAME)),
-				"%" + request.getContent().toLowerCase() + "%"
+					criteriaBuilder.lower(root.get(Post.CONTENT_FIELD_NAME)),
+					"%" + request.getContent().toLowerCase() + "%"
 			);
 			predicates.add(predicate);
 		}
@@ -52,14 +52,14 @@ public class PostSearchCriteria implements Specification<Post> {
 		if (Objects.nonNull(request.getKeyword())) {
 			String keyword = request.getKeyword().toLowerCase();
 			Predicate predicate = criteriaBuilder.or(
-				criteriaBuilder.like(
-					criteriaBuilder.lower(root.get(Post.TITLE_FIELD_NAME)),
-					"%" + keyword + "%"
-				),
-				criteriaBuilder.like(
-					criteriaBuilder.lower(root.get(Post.CONTENT_FIELD_NAME)),
-					"%" + keyword + "%"
-				)
+					criteriaBuilder.like(
+							criteriaBuilder.lower(root.get(Post.TITLE_FIELD_NAME)),
+							"%" + keyword + "%"
+					),
+					criteriaBuilder.like(
+							criteriaBuilder.lower(root.get(Post.CONTENT_FIELD_NAME)),
+							"%" + keyword + "%"
+					)
 			);
 			predicates.add(predicate);
 		}

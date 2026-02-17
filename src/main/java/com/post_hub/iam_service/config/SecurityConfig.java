@@ -82,7 +82,7 @@ public class SecurityConfig {
 	}
 
 	private String[] adminAccessSecurityRoles() {
-		return new String[] {
+		return new String[]{
 				IamServiceUserRole.SUPER_ADMIN.getRole(),
 				IamServiceUserRole.ADMIN.getRole()
 		};

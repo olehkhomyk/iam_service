@@ -10,8 +10,8 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CommentDTO implements Serializable {
-    private Integer id;
-    private String content;
-    private String createdAt;
-    private String createdBy;
+	private Integer id;
+	private String content;
+	private String createdAt;
+	private String createdBy;
 }

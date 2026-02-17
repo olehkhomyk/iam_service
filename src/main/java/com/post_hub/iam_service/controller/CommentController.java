@@ -24,50 +24,50 @@ import java.security.Principal;
 @RequiredArgsConstructor
 @RequestMapping("${end.point.comments}")
 public class CommentController {
-    private final CommentService commentService;
+	private final CommentService commentService;
 
-    @PostMapping
-    public ResponseEntity<IamResponse<CommentDTO>> create(
-            @PathVariable(name = "postId") Integer postId,
-            @Valid @RequestBody CommentRequest request,
-            Principal principal) {
-        log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
+	@PostMapping
+	public ResponseEntity<IamResponse<CommentDTO>> create(
+			@PathVariable(name = "postId") Integer postId,
+			@Valid @RequestBody CommentRequest request,
+			Principal principal) {
+		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
 
-        IamResponse<CommentDTO> result = commentService.create(postId, request, principal.getName());
-        return ResponseEntity.ok(result);
-    }
+		IamResponse<CommentDTO> result = commentService.create(postId, request, principal.getName());
+		return ResponseEntity.ok(result);
+	}
 
-    @GetMapping
-    public ResponseEntity<IamResponse<PaginationResponse<CommentDTO>>> getByPostId(
-        @PathVariable(name = "postId") Integer postId,
-        @RequestParam(name = "page", defaultValue = "0") int page,
-        @RequestParam(name = "limit", defaultValue = "10") int limit
-    ) {
-        log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
-        Pageable pageable = PageRequest.of(page, limit);
+	@GetMapping
+	public ResponseEntity<IamResponse<PaginationResponse<CommentDTO>>> getByPostId(
+			@PathVariable(name = "postId") Integer postId,
+			@RequestParam(name = "page", defaultValue = "0") int page,
+			@RequestParam(name = "limit", defaultValue = "10") int limit
+	) {
+		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
+		Pageable pageable = PageRequest.of(page, limit);
 
-        IamResponse<PaginationResponse<CommentDTO>> result = commentService.getAllByPostId(postId, pageable);
-        return ResponseEntity.ok(result);
-    }
+		IamResponse<PaginationResponse<CommentDTO>> result = commentService.getAllByPostId(postId, pageable);
+		return ResponseEntity.ok(result);
+	}
 
-    @GetMapping("/{id}")
-    public ResponseEntity<IamResponse<CommentDTO>> getById(
-            @PathVariable(name = "postId") Integer postId,
-            @PathVariable(name = "id") Integer id) {
-        log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
+	@GetMapping("/{id}")
+	public ResponseEntity<IamResponse<CommentDTO>> getById(
+			@PathVariable(name = "postId") Integer postId,
+			@PathVariable(name = "id") Integer id) {
+		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
 
-        IamResponse<CommentDTO> result = commentService.getById(postId, id);
-        return ResponseEntity.ok(result);
-    }
+		IamResponse<CommentDTO> result = commentService.getById(postId, id);
+		return ResponseEntity.ok(result);
+	}
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteById(
-            @PathVariable(name = "postId") Integer postId,
-            @PathVariable(name = "id") Integer id) {
-        log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Void> deleteById(
+			@PathVariable(name = "postId") Integer postId,
+			@PathVariable(name = "id") Integer id) {
+		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
 
-        commentService.deleteById(postId, id);
+		commentService.deleteById(postId, id);
 
-        return ResponseEntity.ok().build();
-    }
+		return ResponseEntity.ok().build();
+	}
 }

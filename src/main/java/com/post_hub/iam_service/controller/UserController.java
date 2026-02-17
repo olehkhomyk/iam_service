@@ -57,7 +57,7 @@ public class UserController {
 	}
 
 	@DeleteMapping("${end.point.id}")
-	public ResponseEntity<Void> softDeleteUserById(@PathVariable(name="id") Integer id) {
+	public ResponseEntity<Void> softDeleteUserById(@PathVariable(name = "id") Integer id) {
 		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
 
 		userService.softDeleteUserById(id);
@@ -66,7 +66,7 @@ public class UserController {
 	}
 
 	@DeleteMapping("${end.point.id}/hard")
-	public ResponseEntity<Void> hardDeleteUserById(@PathVariable(name="id") Integer id) {
+	public ResponseEntity<Void> hardDeleteUserById(@PathVariable(name = "id") Integer id) {
 		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
 
 		userService.hardDeleteUserById(id);
@@ -76,9 +76,9 @@ public class UserController {
 
 	@PostMapping("${end.point.search}")
 	public ResponseEntity<IamResponse<PaginationResponse<UserSearchDTO>>> searchUsers(
-		@RequestBody @Valid UserSearchRequest request,
-		@RequestParam(name = "page", defaultValue = "0") int page,
-		@RequestParam(name = "limit", defaultValue = "10") int limit) {
+			@RequestBody @Valid UserSearchRequest request,
+			@RequestParam(name = "page", defaultValue = "0") int page,
+			@RequestParam(name = "limit", defaultValue = "10") int limit) {
 		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
 
 		Pageable pageable = PageRequest.of(page, limit);
@@ -89,8 +89,8 @@ public class UserController {
 
 	@GetMapping("${end.point.all}")
 	public ResponseEntity<IamResponse<PaginationResponse<UserSearchDTO>>> getAllUsers(
-		@RequestParam(name = "page", defaultValue = "0") int page,
-		@RequestParam(name = "limit", defaultValue = "10") int limit) {
+			@RequestParam(name = "page", defaultValue = "0") int page,
+			@RequestParam(name = "limit", defaultValue = "10") int limit) {
 		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
 
 		Pageable pageable = PageRequest.of(page, limit);

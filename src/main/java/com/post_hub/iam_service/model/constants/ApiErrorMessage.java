@@ -39,8 +39,7 @@ public enum ApiErrorMessage {
 			+ ApiConstants.REQUIRED_MIN_CHARACTERS_NUMBER_IN_PASSWORD + " character(s), "
 			+ ApiConstants.REQUIRED_MIN_DIGITS_NUMBER_IN_PASSWORD + " digit(s). "),
 
-	HAVE_NO_ACCESS("You don't have the necessary permission")
-	;
+	HAVE_NO_ACCESS("You don't have the necessary permission");
 
 	private final String message;
 

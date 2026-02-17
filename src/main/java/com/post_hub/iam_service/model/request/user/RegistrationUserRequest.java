@@ -15,12 +15,12 @@ public class RegistrationUserRequest implements Serializable {
 	private String username;
 
 	@Email
-    @NotBlank(message = "Email must not be blank!")
+	@NotBlank(message = "Email must not be blank!")
 	private String email;
 
-    @NotBlank(message = "Password must not be blank!")
+	@NotBlank(message = "Password must not be blank!")
 	private String password;
 
-    @NotBlank(message = "Confirm password must not be blank!")
+	@NotBlank(message = "Confirm password must not be blank!")
 	private String confirmPassword;
 }

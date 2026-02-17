@@ -137,6 +137,6 @@ public class PostServiceImpl implements PostService {
 								.build()
 				).build();
 
-		return  IamResponse.createSuccess(response);
+		return IamResponse.createSuccess(response);
 	}
 }

@@ -11,6 +11,6 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CommentRequest implements Serializable {
-    @NotBlank(message = "Content cannot be empty")
-    private String content;
+	@NotBlank(message = "Content cannot be empty")
+	private String content;
 }
