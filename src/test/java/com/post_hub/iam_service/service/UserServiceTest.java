@@ -5,6 +5,7 @@ import com.post_hub.iam_service.model.dto.role.RoleDto;
 import com.post_hub.iam_service.model.dto.user.UserDTO;
 import com.post_hub.iam_service.model.entity.Role;
 import com.post_hub.iam_service.model.entity.User;
+import com.post_hub.iam_service.model.exception.NotFoundException;
 import com.post_hub.iam_service.repository.RoleRepository;
 import com.post_hub.iam_service.repository.UserRepository;
 import com.post_hub.iam_service.service.impl.UserServiceImpl;
@@ -23,8 +24,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -82,5 +83,17 @@ public class UserServiceTest {
 		InOrder inOrder = inOrder(userRepository, userMapper);
 		inOrder.verify(userRepository, times(1)).findByIdAndDeletedFalse(1);
 		inOrder.verify(userMapper, times(1)).toDTO(testUser);
+	}
+
+	@Test
+	void getById_UserDoesNotExist_ThrowNotFoundException() {
+		when(userRepository.findByIdAndDeletedFalse(999)).thenReturn(Optional.empty());
+
+		assertThatThrownBy(() -> userService.getById(999))
+				.isInstanceOf(NotFoundException.class)
+				.hasMessageContaining("User wit ID: 999 was not found");
+
+		verify(userRepository, times(1)).findByIdAndDeletedFalse(999);
+		verify(userMapper, never()).toDTO(any());
 	}
 }
