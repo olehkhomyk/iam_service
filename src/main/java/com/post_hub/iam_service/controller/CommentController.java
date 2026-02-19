@@ -24,7 +24,7 @@ import java.security.Principal;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("${end.point.comments}")
-@Tag(name = "Comments")
+@Tag(name = "Comments", description = "Comment endpoints")
 public class CommentController {
 	private final CommentService commentService;
 

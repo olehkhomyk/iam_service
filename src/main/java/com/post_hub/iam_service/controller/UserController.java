@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("${end.point.users}")
-@Tag(name = "Users")
+@Tag(name = "Users", description = "User endpoints")
 public class UserController {
 	private final UserService userService;
 

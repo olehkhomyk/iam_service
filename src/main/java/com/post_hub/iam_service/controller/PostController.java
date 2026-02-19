@@ -28,7 +28,7 @@ import java.security.Principal;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("${end.point.posts}")
-@Tag(name = "Posts")
+@Tag(name = "Posts", description = "Post endpoints")
 public class PostController {
 	private final PostService postService;
 
