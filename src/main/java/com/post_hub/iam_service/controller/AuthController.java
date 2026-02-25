@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 	private final AuthService authService;
 
+	// TODO: Refactor UserProfileDto to AuthDataDto, and make profile as just profile data.
 	@PostMapping("${end.point.login}")
 	public ResponseEntity<IamResponse<UserProfileDTO>> login(
 			@RequestBody @Valid LoginRequest request,

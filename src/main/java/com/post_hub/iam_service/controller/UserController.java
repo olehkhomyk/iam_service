@@ -14,11 +14,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
 
 @Slf4j
 @Validated
@@ -28,12 +31,24 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Users", description = "User endpoints")
 public class UserController {
 	private final UserService userService;
+	private final ApiUtils apiUtils;
 
-	@GetMapping("${end.point.id}")
+	@GetMapping("/{id:\\d+}")
 	public ResponseEntity<IamResponse<UserDTO>> getUserById(@PathVariable(name = "id") Integer userI) {
 		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
 
 		IamResponse<UserDTO> response = userService.getById(userI);
+
+		return ResponseEntity.ok(response);
+	}
+
+	// TODO Refactor to return UserProfileDTO not UserDto, also refactor auth to return only tokens.
+	@GetMapping("/me")
+	public ResponseEntity<IamResponse<UserDTO>> getCurrentUser(OAuth2ResourceServerProperties.Jwt jwt) {
+		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
+
+		Integer userId = apiUtils.getUserIdFromAuthentication();
+		IamResponse<UserDTO> response = userService.getById(userId);
 
 		return ResponseEntity.ok(response);
 	}
