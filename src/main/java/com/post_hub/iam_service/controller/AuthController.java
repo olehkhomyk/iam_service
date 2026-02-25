@@ -32,8 +32,10 @@ public class AuthController {
 		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
 
 		IamResponse<UserProfileDTO> result = authService.login(request);
-		Cookie authorizationCookie = ApiUtils.createAuthCookie(result.getPayload().getToken());
-		response.addCookie(authorizationCookie);
+
+		// For now authorizationCookie turned off.
+		// Cookie authorizationCookie = ApiUtils.createAuthCookie(result.getPayload().getToken());
+		// response.addCookie(authorizationCookie);
 
 		return ResponseEntity.ok(result);
 	}
@@ -45,8 +47,10 @@ public class AuthController {
 		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
 
 		IamResponse<UserProfileDTO> result = authService.registerUser(request);
-		Cookie authorizationCookie = ApiUtils.createAuthCookie(result.getPayload().getToken());
-		response.addCookie(authorizationCookie);
+
+		// For now authorizationCookie turned off.
+		// Cookie authorizationCookie = ApiUtils.createAuthCookie(result.getPayload().getToken());
+		// response.addCookie(authorizationCookie);
 
 		return ResponseEntity.ok(result);
 	}
@@ -59,8 +63,10 @@ public class AuthController {
 		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
 
 		IamResponse<UserProfileDTO> result = authService.refreshAccessToken(refreshToken);
-		Cookie authorizationCookie = ApiUtils.createAuthCookie(result.getPayload().getToken());
-		response.addCookie(authorizationCookie);
+
+		// For now authorizationCookie turned off.
+		// Cookie authorizationCookie = ApiUtils.createAuthCookie(result.getPayload().getToken());
+		// response.addCookie(authorizationCookie);
 
 		return ResponseEntity.ok(result);
 	}
