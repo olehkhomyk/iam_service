@@ -1,23 +1,26 @@
 package com.post_hub.iam_service.advice;
 
 import com.post_hub.iam_service.model.constants.ApiConstants;
+import com.post_hub.iam_service.model.enums.ErrorCode;
 import com.post_hub.iam_service.model.exception.DataExistException;
 import com.post_hub.iam_service.model.exception.InvalidPasswordException;
 import com.post_hub.iam_service.model.exception.NotFoundException;
+import com.post_hub.iam_service.model.respsonse.ErrorResponse;
+import com.post_hub.iam_service.model.respsonse.IamResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.validation.ObjectError;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Slf4j
 @ControllerAdvice
@@ -25,54 +28,83 @@ public class CommonControllerAdvice {
 
 	@ExceptionHandler
 	@ResponseBody
-	protected ResponseEntity<String> handleNotFoundException(NotFoundException ex) {
+	protected ResponseEntity<IamResponse<ErrorResponse>> handleNotFoundException(NotFoundException ex) {
 		logStackTrace(ex);
+
+		IamResponse<ErrorResponse> response = IamResponse.createError(
+				ErrorCode.NOT_FOUND,
+				ex.getMessage()
+		);
 
 		return ResponseEntity
 				.status(HttpStatus.NOT_FOUND)
-				.body(ex.getMessage());
+				.body(response);
 	}
 
 	@ExceptionHandler(DataExistException.class)
 	@ResponseBody
-	protected ResponseEntity<String> handleDataExistException(DataExistException ex) {
+	protected ResponseEntity<IamResponse<ErrorResponse>> handleDataExistException(DataExistException ex) {
 		logStackTrace(ex);
+
+		IamResponse<ErrorResponse> response = IamResponse.createError(
+				ErrorCode.DATA_ALREADY_EXISTS,
+				ex.getMessage()
+		);
 
 		return ResponseEntity
 				.status(HttpStatus.CONFLICT)
-				.body(ex.getMessage());
+				.body(response);
 	}
 
 	@ExceptionHandler(InvalidPasswordException.class)
 	@ResponseBody
-	public ResponseEntity<String> handleInvalidPasswordException(InvalidPasswordException ex) {
+	public ResponseEntity<IamResponse<ErrorResponse>> handleInvalidPasswordException(InvalidPasswordException ex) {
+		IamResponse<ErrorResponse> response = IamResponse.createError(
+				ErrorCode.INVALID_PASSWORD,
+				ex.getMessage()
+		);
+
 		return ResponseEntity
 				.status(HttpStatus.BAD_REQUEST)
-				.body(ex.getMessage());
+				.body(response);
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
-	public ResponseEntity<Map<String, String>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+	public ResponseEntity<IamResponse<ErrorResponse>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
 		logStackTrace(ex);
 
-		Map<String, String> errors = new HashMap<>();
-		for (ObjectError error : ex.getBindingResult().getAllErrors()) {
-			String errorMessage = error.getDefaultMessage();
-			errors.put("error", errorMessage);
-		}
-		return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+		List<String> validationErrors = ex.getBindingResult().getAllErrors().stream()
+				.map(error -> {
+					if (error instanceof FieldError fieldError) {
+						return fieldError.getField() + ": " + error.getDefaultMessage();
+					}
+					return error.getDefaultMessage();
+				})
+				.collect(Collectors.toList());
+
+		IamResponse<ErrorResponse> response = IamResponse.createError(
+				ErrorCode.VALIDATION_ERROR,
+				"Validation failed",
+				validationErrors
+		);
+
+		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 	}
 
 	@ExceptionHandler(AccessDeniedException.class)
 	@ResponseBody
-	protected ResponseEntity<String> handleAccessDeniedException(AccessDeniedException ex) {
+	protected ResponseEntity<IamResponse<ErrorResponse>> handleAccessDeniedException(AccessDeniedException ex) {
 		logStackTrace(ex);
+
+		IamResponse<ErrorResponse> response = IamResponse.createError(
+				ErrorCode.ACCESS_DENIED,
+				ex.getMessage()
+		);
 
 		return ResponseEntity
 				.status(HttpStatus.FORBIDDEN)
-				.body(ex.getMessage());
+				.body(response);
 	}
-
 
 	private void logStackTrace(Exception ex) {
 		StringBuilder stackTrace = new StringBuilder();
