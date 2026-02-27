@@ -23,6 +23,8 @@ public class User {
 	public static final String USERNAME_FIELD_NAME = "username";
 	public static final String PASSWORD_FIELD_NAME = "password";
 	public static final String EMAIL_FIELD_NAME = "email";
+	public static final String FIRSTNAME_FIELD_NAME = "email";
+	public static final String LASTNAME_FIELD_NAME = "email";
 	public static final String REGISTRATION_STATUS_FIELD_NAME = "registrationStatus";
 	public static final String CREATED_FIELD_NAME = "created";
 	public static final String UPDATED_FIELD_NAME = "updated";
@@ -44,6 +46,14 @@ public class User {
 	@Size(max = 50)
 	@Column(unique = true, length = 50)
 	private String email;
+
+	@Size(max = 50)
+	@Column(name="first_name", nullable = false, length = 50)
+	private String firstName;
+
+	@Size(max = 50)
+	@Column(name="last_name", nullable = false, length = 50)
+	private String lastName;
 
 	@CreationTimestamp
 	@Column(nullable = false, updatable = false)

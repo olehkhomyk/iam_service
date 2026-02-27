@@ -10,10 +10,17 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class NewUserRequest {
-
 	@NotBlank(message = "Username must not be blank")
 	@Size(max = 30)
 	private String username;
+
+	@NotBlank(message = "First name must not be blank!")
+	@Size(max = 50)
+	private String firstName;
+
+	@NotBlank(message = "Last name must not be blank!")
+	@Size(max = 50)
+	private String lastName;
 
 	@NotBlank(message = "Password must not be blank")
 	@Size(max = 50)

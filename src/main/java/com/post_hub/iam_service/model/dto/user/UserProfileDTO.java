@@ -16,6 +16,9 @@ public class UserProfileDTO implements Serializable {
 	private String username;
 	private String email;
 
+	private String firstName;
+	private String lastName;
+
 	private RegistrationStatus registrationStatus;
 	private LocalDateTime lastLogin;
 
