@@ -24,5 +24,5 @@ public interface PostService {
 
 	IamResponse<PaginationResponse<PostSearchDTO>> findAllPosts(Pageable pageable);
 
-	IamResponse<PaginationResponse<PostSearchDTO>> searchPosts(@NotNull PostSearchRequest request, Pageable pageable);
+	IamResponse<PaginationResponse<PostSearchDTO>> searchPosts(@NotNull PostSearchRequest request, Pageable pageable, Boolean includeComments);
 }

@@ -1,9 +1,12 @@
 package com.post_hub.iam_service.service.impl;
 
+import com.post_hub.iam_service.mapper.CommentMapper;
 import com.post_hub.iam_service.mapper.PostMapper;
 import com.post_hub.iam_service.model.constants.ApiErrorMessage;
+import com.post_hub.iam_service.model.dto.comment.CommentDTO;
 import com.post_hub.iam_service.model.dto.post.PostDTO;
 import com.post_hub.iam_service.model.dto.post.PostSearchDTO;
+import com.post_hub.iam_service.model.entity.Comment;
 import com.post_hub.iam_service.model.entity.Post;
 import com.post_hub.iam_service.model.entity.User;
 import com.post_hub.iam_service.model.exception.DataExistException;
@@ -13,6 +16,7 @@ import com.post_hub.iam_service.model.request.post.PostSearchRequest;
 import com.post_hub.iam_service.model.request.post.UpdatePostRequest;
 import com.post_hub.iam_service.model.respsonse.IamResponse;
 import com.post_hub.iam_service.model.respsonse.PaginationResponse;
+import com.post_hub.iam_service.repository.CommentRepository;
 import com.post_hub.iam_service.repository.PostRepository;
 import com.post_hub.iam_service.repository.UserRepository;
 import com.post_hub.iam_service.repository.criteria.PostSearchCriteria;
@@ -26,8 +30,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -36,7 +45,9 @@ import java.time.LocalDateTime;
 public class PostServiceImpl implements PostService {
 	private final PostRepository postRepository;
 	private final PostMapper postMapper;
+	private final CommentMapper commentMapper;
 	private final UserRepository userRepository;
+	private final CommentRepository commentRepository;
 	private final AccessValidator accessValidator;
 
 	@Override
@@ -121,19 +132,53 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
-	public IamResponse<PaginationResponse<PostSearchDTO>> searchPosts(PostSearchRequest request, Pageable pageable) {
+	@Transactional(readOnly = true)
+	public IamResponse<PaginationResponse<PostSearchDTO>> searchPosts(PostSearchRequest request, Pageable pageable, Boolean includeComments) {
 		Specification<Post> specification = new PostSearchCriteria(request);
-		Page<PostSearchDTO> posts = postRepository.findAll(specification, pageable)
+		Page<PostSearchDTO> postDTOs = postRepository.findAll(specification, pageable)
 				.map(postMapper::toPostSearchDTO);
 
+		if (Boolean.TRUE.equals(includeComments) && !postDTOs.isEmpty()) {
+			List<Integer> postIds = postDTOs.stream()
+					.map(PostSearchDTO::getId)
+					.toList();
+			List<Comment> comments = commentRepository.findByPostIds(postIds);
+			Map<Integer, List<CommentDTO>> previewCommentsMap = new HashMap<>();
+
+			for (Comment comment : comments) {
+				Integer postId = comment.getPost().getId();
+				previewCommentsMap.putIfAbsent(postId, new ArrayList<>());
+				List<CommentDTO> list = previewCommentsMap.get(postId);
+
+				// TODO: move number 3 to constant with particular name.
+				if (list.size() < 3) {
+					list.add(commentMapper.toCommentDTO(comment));
+				}
+			}
+
+			Map<Integer, Long> countMap = new HashMap<>();
+
+			for (Object[] row : commentRepository.countByPostIds(postIds)) {
+				countMap.put((Integer) row[0], (Long) row[1]);
+			}
+
+			for (PostSearchDTO dto : postDTOs) {
+				List<CommentDTO> preview = previewCommentsMap.getOrDefault(dto.getId(), List.of());
+				Long total = countMap.getOrDefault(dto.getId(), 0L);
+
+				dto.setPreviewComments(preview);
+				dto.setTotalComments(total);
+			}
+		}
+
 		PaginationResponse<PostSearchDTO> response = PaginationResponse.<PostSearchDTO>builder()
-				.content(posts.getContent())
+				.content(postDTOs.getContent())
 				.pagination(
 						PaginationResponse.Pagination.builder()
-								.total(posts.getTotalElements())
+								.total(postDTOs.getTotalElements())
 								.limit(pageable.getPageSize())
-								.page(posts.getNumber() + 1)
-								.pages(posts.getTotalPages())
+								.page(postDTOs.getNumber() + 1)
+								.pages(postDTOs.getTotalPages())
 								.build()
 				).build();
 
