@@ -16,19 +16,9 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
 	Page<Comment> findAllByPostIdOrderByCreatedAtDesc(@NotNull Integer postId, Pageable pageable);
 
-	Optional<Comment> findByIdAndPostId(@NotNull Integer id, @NotNull Integer postId);
+//	Page<Comment> findAllByPostIdOrderByLikesDesc(@NotNull Integer postId, Pageable pageable);
 
-	@Query(value = """
-        SELECT *
-        FROM (
-            SELECT c.*,
-                   ROW_NUMBER() OVER (PARTITION BY c.post_id ORDER BY c.created_at DESC) rn
-            FROM v1_iam_service.comments c
-            WHERE c.post_id IN (:postIds)
-        ) ranked
-        WHERE ranked.rn <= 3
-        """, nativeQuery = true)
-	List<Comment> findPreviewComments(@Param("postIds") List<Integer> postIds);
+	Optional<Comment> findByIdAndPostId(@NotNull Integer id, @NotNull Integer postId);
 
 	@Query("""
 			    SELECT c.post.id, COUNT(c)

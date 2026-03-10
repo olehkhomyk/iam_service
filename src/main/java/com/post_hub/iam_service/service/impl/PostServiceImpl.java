@@ -27,6 +27,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -139,31 +140,10 @@ public class PostServiceImpl implements PostService {
 				.map(postMapper::toPostSearchDTO);
 
 		if (Boolean.TRUE.equals(includeComments) && !postDTOs.isEmpty()) {
-			List<Integer> postIds = postDTOs.stream()
-					.map(PostSearchDTO::getId)
-					.toList();
-			List<Comment> comments = commentRepository.findPreviewComments(postIds);
-			Map<Integer, List<CommentDTO>> previewCommentsMap = new HashMap<>();
-
-			for (Comment comment : comments) {
-				Integer postId = comment.getPost().getId();
-				previewCommentsMap.putIfAbsent(postId, new ArrayList<>());
-				List<CommentDTO> list = previewCommentsMap.get(postId);
-				list.add(commentMapper.toCommentDTO(comment));
-			}
-
-			Map<Integer, Long> countMap = new HashMap<>();
-
-			for (Object[] row : commentRepository.countByPostIds(postIds)) {
-				countMap.put((Integer) row[0], (Long) row[1]);
-			}
-
-			for (PostSearchDTO dto : postDTOs) {
-				List<CommentDTO> preview = previewCommentsMap.getOrDefault(dto.getId(), List.of());
-				Long total = countMap.getOrDefault(dto.getId(), 0L);
-
-				dto.setPreviewComments(preview);
-				dto.setTotalComments(total);
+			for (PostSearchDTO post : postDTOs.getContent()) {
+				Page<CommentDTO> comments = commentRepository.findAllByPostIdOrderByCreatedAtDesc(post.getId(), PageRequest.of(0, 3))
+								.map(commentMapper::toCommentDTO);
+				post.setPreviewComments(comments.getContent());
 			}
 		}
 
