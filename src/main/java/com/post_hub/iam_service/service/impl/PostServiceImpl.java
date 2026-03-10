@@ -142,18 +142,14 @@ public class PostServiceImpl implements PostService {
 			List<Integer> postIds = postDTOs.stream()
 					.map(PostSearchDTO::getId)
 					.toList();
-			List<Comment> comments = commentRepository.findByPostIds(postIds);
+			List<Comment> comments = commentRepository.findPreviewComments(postIds);
 			Map<Integer, List<CommentDTO>> previewCommentsMap = new HashMap<>();
 
 			for (Comment comment : comments) {
 				Integer postId = comment.getPost().getId();
 				previewCommentsMap.putIfAbsent(postId, new ArrayList<>());
 				List<CommentDTO> list = previewCommentsMap.get(postId);
-
-				// TODO: move number 3 to constant with particular name.
-				if (list.size() < 3) {
-					list.add(commentMapper.toCommentDTO(comment));
-				}
+				list.add(commentMapper.toCommentDTO(comment));
 			}
 
 			Map<Integer, Long> countMap = new HashMap<>();

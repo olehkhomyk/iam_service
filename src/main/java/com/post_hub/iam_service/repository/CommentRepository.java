@@ -18,13 +18,17 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
 	Optional<Comment> findByIdAndPostId(@NotNull Integer id, @NotNull Integer postId);
 
-	@Query("""
-			    SELECT c
-			    FROM Comment c
-			    WHERE c.post.id IN :postIds
-			    ORDER BY c.post.id, c.createdAt DESC
-			""")
-	List<Comment> findByPostIds(@Param("postIds") List<Integer> postIds);
+	@Query(value = """
+        SELECT *
+        FROM (
+            SELECT c.*,
+                   ROW_NUMBER() OVER (PARTITION BY c.post_id ORDER BY c.created_at DESC) rn
+            FROM v1_iam_service.comments c
+            WHERE c.post_id IN (:postIds)
+        ) ranked
+        WHERE ranked.rn <= 3
+        """, nativeQuery = true)
+	List<Comment> findPreviewComments(@Param("postIds") List<Integer> postIds);
 
 	@Query("""
 			    SELECT c.post.id, COUNT(c)
