@@ -6,7 +6,6 @@ import com.post_hub.iam_service.model.constants.ApiErrorMessage;
 import com.post_hub.iam_service.model.dto.comment.CommentDTO;
 import com.post_hub.iam_service.model.dto.post.PostDTO;
 import com.post_hub.iam_service.model.dto.post.PostSearchDTO;
-import com.post_hub.iam_service.model.entity.Comment;
 import com.post_hub.iam_service.model.entity.Post;
 import com.post_hub.iam_service.model.entity.User;
 import com.post_hub.iam_service.model.exception.DataExistException;
@@ -34,10 +33,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -142,7 +140,8 @@ public class PostServiceImpl implements PostService {
 		if (Boolean.TRUE.equals(includeComments) && !postDTOs.isEmpty()) {
 			for (PostSearchDTO post : postDTOs.getContent()) {
 				Page<CommentDTO> comments = commentRepository.findAllByPostIdOrderByCreatedAtDesc(post.getId(), PageRequest.of(0, 3))
-								.map(commentMapper::toCommentDTO);
+						.map(commentMapper::toCommentDTO);
+				post.setTotalComments(comments.getTotalElements());
 				post.setPreviewComments(comments.getContent());
 			}
 		}
