@@ -39,10 +39,6 @@ public class PostSearchCriteria implements Specification<Post> {
 			);
 			predicates.add(predicate);
 		}
-//		if (Objects.nonNull(request.getLikes())) {
-//			Predicate predicate = criteriaBuilder.equal(root.get(Post.LIKES_FIELD_NAME), request.getLikes());
-//			predicates.add(predicate);
-//		}
 
 		if (Objects.nonNull(request.getDeleted())) {
 			Predicate predicate = criteriaBuilder.equal(root.get(Post.DELETED_FIELD_NAME), request.getDeleted());
@@ -74,7 +70,6 @@ public class PostSearchCriteria implements Specification<Post> {
 			switch (request.getSortField()) {
 				case TITLE -> query.orderBy(criteriaBuilder.asc(root.get(Post.TITLE_FIELD_NAME)));
 				case CONTENT -> query.orderBy(criteriaBuilder.asc(root.get(Post.CONTENT_FIELD_NAME)));
-//				case LIKES -> query.orderBy(criteriaBuilder.desc(root.get(Post.LIKES_FIELD_NAME)));
 				default -> query.orderBy(criteriaBuilder.desc(root.get(Post.ID_FIELD_NAME)));
 			}
 		} else {
