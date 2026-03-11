@@ -14,7 +14,6 @@ public class Post {
 	public static final String ID_FIELD_NAME = "id";
 	public static final String TITLE_FIELD_NAME = "title";
 	public static final String CONTENT_FIELD_NAME = "content";
-	public static final String LIKES_FIELD_NAME = "likes";
 	public static final String CREATED_FIELD_NAME = "created";
 	public static final String UPDATED_FIELD_NAME = "updated";
 	public static final String DELETED_FIELD_NAME = "deleted";
@@ -34,9 +33,6 @@ public class Post {
 
 	@Column(nullable = false)
 	private LocalDateTime updated = LocalDateTime.now();
-
-	@Column(nullable = false, columnDefinition = "integer default 0")
-	private Integer likes = 0;
 
 	@Column(nullable = false)
 	private Boolean deleted = false;

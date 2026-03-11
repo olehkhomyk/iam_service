@@ -24,7 +24,6 @@ public interface PostMapper {
 	@Mapping(source = "id", target = "id")
 	@Mapping(source = "title", target = "title")
 	@Mapping(source = "content", target = "content")
-	@Mapping(source = "likes", target = "likes")
 	@Mapping(source = "created", target = "created", dateFormat = "yyyy-MM-dd HH:mm:ss")
 	PostDTO toPostDTO(Post post);
 
