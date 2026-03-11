@@ -13,7 +13,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "comment_likes", schema = "v1_iam_service")
+@Table(name = "comment_likes")
 public class CommentLike {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
