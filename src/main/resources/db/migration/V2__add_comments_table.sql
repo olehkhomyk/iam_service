@@ -12,4 +12,4 @@ CREATE TABLE comments
 );
 
 INSERT INTO comments (post_id, user_id, content, created_at, created_by)
-VALUES (2, 4, 'This is my first comment for post 2 in this application', CURRENT_TIMESTAMP, 'new_user1');
+VALUES (2, 3, 'This is my first comment for post 2 in this application', CURRENT_TIMESTAMP, 'user');
