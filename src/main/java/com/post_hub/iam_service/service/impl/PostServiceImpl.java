@@ -1,11 +1,13 @@
 package com.post_hub.iam_service.service.impl;
 
 import com.post_hub.iam_service.mapper.CommentMapper;
+import com.post_hub.iam_service.mapper.PostLikeMapper;
 import com.post_hub.iam_service.mapper.PostMapper;
 import com.post_hub.iam_service.model.constants.ApiErrorMessage;
 import com.post_hub.iam_service.model.dto.comment.CommentDTO;
 import com.post_hub.iam_service.model.dto.post.PostDTO;
 import com.post_hub.iam_service.model.dto.post.PostSearchDTO;
+import com.post_hub.iam_service.model.dto.postLike.PostLikeDTO;
 import com.post_hub.iam_service.model.entity.Post;
 import com.post_hub.iam_service.model.entity.User;
 import com.post_hub.iam_service.model.exception.DataExistException;
@@ -16,6 +18,7 @@ import com.post_hub.iam_service.model.request.post.UpdatePostRequest;
 import com.post_hub.iam_service.model.respsonse.IamResponse;
 import com.post_hub.iam_service.model.respsonse.PaginationResponse;
 import com.post_hub.iam_service.repository.CommentRepository;
+import com.post_hub.iam_service.repository.PostLikeRepository;
 import com.post_hub.iam_service.repository.PostRepository;
 import com.post_hub.iam_service.repository.UserRepository;
 import com.post_hub.iam_service.repository.criteria.PostSearchCriteria;
@@ -33,9 +36,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -44,9 +44,11 @@ import java.util.stream.Collectors;
 public class PostServiceImpl implements PostService {
 	private final PostRepository postRepository;
 	private final PostMapper postMapper;
+	private final PostLikeMapper postLikeMapper;
 	private final CommentMapper commentMapper;
 	private final UserRepository userRepository;
 	private final CommentRepository commentRepository;
+	private final PostLikeRepository postLikeRepository;
 	private final AccessValidator accessValidator;
 
 	@Override
@@ -114,18 +116,10 @@ public class PostServiceImpl implements PostService {
 
 	@Override
 	public IamResponse<PaginationResponse<PostSearchDTO>> findAllPosts(Pageable pageable) {
-		Page<PostSearchDTO> posts = postRepository.findAll(pageable)
+		Page<PostSearchDTO> postDTOs = postRepository.findAll(pageable)
 				.map(postMapper::toPostSearchDTO);
 
-		PaginationResponse<PostSearchDTO> paginationResponse = new PaginationResponse<>(
-				posts.getContent(),
-				new PaginationResponse.Pagination(
-						posts.getTotalElements(),
-						pageable.getPageSize(),
-						posts.getNumber() + 1,
-						posts.getTotalPages()
-				)
-		);
+		PaginationResponse<PostSearchDTO> paginationResponse = buildPaginationResponse(postDTOs, pageable);
 
 		return IamResponse.createSuccess(paginationResponse);
 	}
@@ -138,15 +132,45 @@ public class PostServiceImpl implements PostService {
 				.map(postMapper::toPostSearchDTO);
 
 		if (Boolean.TRUE.equals(includeComments) && !postDTOs.isEmpty()) {
-			for (PostSearchDTO post : postDTOs.getContent()) {
-				Page<CommentDTO> comments = commentRepository.findAllByPostIdOrderByCreatedAtDesc(post.getId(), PageRequest.of(0, 3))
-						.map(commentMapper::toCommentDTO);
-				post.setTotalComments(comments.getTotalElements());
-				post.setPreviewComments(comments.getContent());
-			}
+			enrichWithComments(postDTOs);
 		}
 
-		PaginationResponse<PostSearchDTO> response = PaginationResponse.<PostSearchDTO>builder()
+		enrichWithLikes(postDTOs);
+
+		PaginationResponse<PostSearchDTO> response = buildPaginationResponse(postDTOs, pageable);
+
+		return IamResponse.createSuccess(response);
+	}
+
+	private void enrichWithLikes(Page<PostSearchDTO> posts) {
+		for (PostSearchDTO post : posts.getContent()) {
+			Page<PostLikeDTO> postLikes = postLikeRepository
+					.findAllByPostIdOrderByCreatedAtDesc(post.getId(), PageRequest.of(0, 3))
+					.map(postLikeMapper::toPostLikeDTO);
+
+			post.setLikes(postLikes.getContent());
+			post.setLikesCount(postLikes.getTotalElements());
+		}
+	}
+
+	private void enrichWithComments(Page<PostSearchDTO> posts) {
+		if (posts.isEmpty()) return;
+
+		for (PostSearchDTO post : posts.getContent()) {
+			Page<CommentDTO> comments = commentRepository
+					.findAllByPostIdOrderByCreatedAtDesc(post.getId(), PageRequest.of(0, 3))
+					.map(commentMapper::toCommentDTO);
+
+			post.setTotalComments(comments.getTotalElements());
+			post.setPreviewComments(comments.getContent());
+		}
+	}
+
+	private PaginationResponse<PostSearchDTO> buildPaginationResponse(
+			Page<PostSearchDTO> postDTOs,
+			Pageable pageable
+	) {
+		return PaginationResponse.<PostSearchDTO>builder()
 				.content(postDTOs.getContent())
 				.pagination(
 						PaginationResponse.Pagination.builder()
@@ -156,7 +180,5 @@ public class PostServiceImpl implements PostService {
 								.pages(postDTOs.getTotalPages())
 								.build()
 				).build();
-
-		return IamResponse.createSuccess(response);
 	}
 }

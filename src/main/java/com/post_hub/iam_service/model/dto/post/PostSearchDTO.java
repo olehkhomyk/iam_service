@@ -1,6 +1,7 @@
 package com.post_hub.iam_service.model.dto.post;
 
 import com.post_hub.iam_service.model.dto.comment.CommentDTO;
+import com.post_hub.iam_service.model.dto.postLike.PostLikeDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,11 +17,13 @@ public class PostSearchDTO implements Serializable {
 	private Integer id;
 	private String title;
 	private String content;
-	private Integer likes;
 	private LocalDateTime created;
 	private LocalDateTime updated;
 	private Boolean isDeleted;
 	private String createdBy;
+
+	private List<PostLikeDTO> likes;
+	private Long likesCount;
 
 	private List<CommentDTO> previewComments;
 	private Long totalComments;
