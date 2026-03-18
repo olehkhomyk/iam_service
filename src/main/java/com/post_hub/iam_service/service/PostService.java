@@ -22,7 +22,7 @@ public interface PostService {
 
 	void hardDeletePost(@NotNull Integer id);
 
-	IamResponse<PaginationResponse<PostSearchDTO>> findAllPosts(Pageable pageable);
+	IamResponse<PaginationResponse<PostSearchDTO>> findAllPosts(Pageable pageable, Boolean includeComments);
 
 	IamResponse<PaginationResponse<PostSearchDTO>> searchPosts(@NotNull PostSearchRequest request, Pageable pageable, Boolean includeComments);
 }

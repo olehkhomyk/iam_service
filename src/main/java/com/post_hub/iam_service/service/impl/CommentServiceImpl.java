@@ -68,9 +68,7 @@ public class CommentServiceImpl implements CommentService {
 
 	@Override
 	public IamResponse<ArrayList<CommentDTO>> getByPostId(@NotNull Integer postId) {
-		if (!postRepository.existsById(postId)) {
-			throw new NotFoundException(ApiErrorMessage.POST_NOT_FOUND_BY_ID.getMessage(postId));
-		}
+		validatePostExistence(postId);
 
 		ArrayList<CommentDTO> commentDTOs = new ArrayList<>(commentRepository.findAllByPostIdOrderByCreatedAtDesc(postId)
 				.stream()
@@ -82,22 +80,12 @@ public class CommentServiceImpl implements CommentService {
 
 	@Override
 	public IamResponse<PaginationResponse<CommentDTO>> getAllByPostId(@NotNull Integer postId, @NotNull Pageable pageable) {
-		if (!postRepository.existsById(postId)) {
-			throw new NotFoundException(ApiErrorMessage.POST_NOT_FOUND_BY_ID.getMessage(postId));
-		}
+		validatePostExistence(postId);
 
 		Page<CommentDTO> comments = commentRepository.findAllByPostIdOrderByCreatedAtDesc(postId, pageable)
 				.map(commentMapper::toCommentDTO);
 
-		PaginationResponse<CommentDTO> paginationResponse = new PaginationResponse<>(
-				comments.getContent(),
-				new PaginationResponse.Pagination(
-						comments.getTotalElements(),
-						pageable.getPageSize(),
-						comments.getNumber() + 1,
-						comments.getTotalPages()
-				)
-		);
+		PaginationResponse<CommentDTO> paginationResponse = buildCommetsPaginationResponse(comments, pageable);
 
 		return IamResponse.createSuccess(paginationResponse);
 	}
@@ -110,5 +98,31 @@ public class CommentServiceImpl implements CommentService {
 		accessValidator.validateAdminOrOwnerAccess(comment.getUser().getId());
 
 		commentRepository.deleteById(commentId.longValue());
+	}
+
+	private void enrichCommentsWithLike(Page<CommentDTO> commentDTOS) {
+
+	}
+
+	private void enrichCommentWithLikes(CommentDTO commentDTO) {
+
+	}
+
+	private PaginationResponse<CommentDTO> buildCommetsPaginationResponse(Page<CommentDTO> commentDTOS, Pageable pageable) {
+		return new PaginationResponse<>(
+				commentDTOS.getContent(),
+				new PaginationResponse.Pagination(
+						commentDTOS.getTotalElements(),
+						pageable.getPageSize(),
+						commentDTOS.getNumber() + 1,
+						commentDTOS.getTotalPages()
+				)
+		);
+	}
+
+	private void validatePostExistence(Integer postId) {
+		if (!postRepository.existsById(postId)) {
+			throw new NotFoundException(ApiErrorMessage.POST_NOT_FOUND_BY_ID.getMessage(postId));
+		}
 	}
 }

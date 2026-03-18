@@ -44,13 +44,26 @@ public class PostController {
 	@GetMapping("${end.point.all}")
 	public ResponseEntity<IamResponse<PaginationResponse<PostSearchDTO>>> getAllPosts(
 			@RequestParam(name = "page", defaultValue = "0") int page,
-			@RequestParam(name = "limit", defaultValue = "10") int limit
-	) {
+			@RequestParam(name = "limit", defaultValue = "10") int limit,
+			@RequestParam(name = "includeComments", required = false, defaultValue = "false") Boolean includeComments) {
 		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
 
 		Pageable pageable = PageRequest.of(page, limit);
-		IamResponse<PaginationResponse<PostSearchDTO>> response = postService.findAllPosts(pageable);
+		IamResponse<PaginationResponse<PostSearchDTO>> response = postService.findAllPosts(pageable, includeComments);
 
+		return ResponseEntity.ok(response);
+	}
+
+	@PostMapping("${end.point.search}")
+	public ResponseEntity<IamResponse<PaginationResponse<PostSearchDTO>>> searchPosts(
+			@RequestBody @Valid PostSearchRequest request,
+			@RequestParam(name = "page", defaultValue = "0") int page,
+			@RequestParam(name = "limit", defaultValue = "10") int limit,
+			@RequestParam(name = "includeComments", required = false, defaultValue = "false") Boolean includeComments) {
+		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
+
+		Pageable pageable = PageRequest.of(page, limit);
+		IamResponse<PaginationResponse<PostSearchDTO>> response = postService.searchPosts(request, pageable, includeComments);
 		return ResponseEntity.ok(response);
 	}
 
@@ -92,18 +105,5 @@ public class PostController {
 		postService.hardDeletePost(id);
 
 		return ResponseEntity.ok().build();
-	}
-
-	@PostMapping("${end.point.search}")
-	public ResponseEntity<IamResponse<PaginationResponse<PostSearchDTO>>> searchPosts(
-			@RequestBody @Valid PostSearchRequest request,
-			@RequestParam(name = "page", defaultValue = "0") int page,
-			@RequestParam(name = "limit", defaultValue = "10") int limit,
-			@RequestParam(name = "includeComments", required = false, defaultValue = "false") Boolean includeComments) {
-		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
-
-		Pageable pageable = PageRequest.of(page, limit);
-		IamResponse<PaginationResponse<PostSearchDTO>> response = postService.searchPosts(request, pageable, includeComments);
-		return ResponseEntity.ok(response);
 	}
 }

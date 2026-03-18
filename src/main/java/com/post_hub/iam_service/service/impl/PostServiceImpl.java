@@ -51,6 +51,7 @@ public class PostServiceImpl implements PostService {
 	private final PostLikeRepository postLikeRepository;
 	private final AccessValidator accessValidator;
 
+	// TODO: enrich with comments and likes.
 	@Override
 	public IamResponse<PostDTO> getById(@NotNull Integer id) {
 		Post post = postRepository.findByIdAndDeletedFalse(id)
@@ -61,6 +62,7 @@ public class PostServiceImpl implements PostService {
 		return IamResponse.createSuccess(postDTO);
 	}
 
+	// TODO: enrich with comments and likes.
 	@Override
 	public IamResponse<PostDTO> create(@NotNull PostRequest postRequest, String username) {
 		if (postRepository.existsByTitle(postRequest.getTitle())) {
@@ -79,6 +81,7 @@ public class PostServiceImpl implements PostService {
 		return IamResponse.createSuccess(savedPostDTO);
 	}
 
+	// TODO: enrich with comments and likes.
 	@Override
 	public IamResponse<PostDTO> update(@NotNull Integer id, @NotNull UpdatePostRequest postRequest) {
 		Post post = postRepository.findByIdAndDeletedFalse(id)
@@ -115,11 +118,21 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
-	public IamResponse<PaginationResponse<PostSearchDTO>> findAllPosts(Pageable pageable) {
+	public IamResponse<PaginationResponse<PostSearchDTO>> findAllPosts(Pageable pageable, Boolean includeComments) {
 		Page<PostSearchDTO> postDTOs = postRepository.findAll(pageable)
 				.map(postMapper::toPostSearchDTO);
 
-		PaginationResponse<PostSearchDTO> paginationResponse = buildPaginationResponse(postDTOs, pageable);
+		if (Boolean.TRUE.equals(includeComments)) {
+			for (PostSearchDTO post : postDTOs.getContent()) {
+				enrichPostWithComments(post, 3);
+			}
+		}
+
+		for (PostSearchDTO post : postDTOs.getContent()) {
+			enrichPostWithLikes(post);
+		}
+
+		PaginationResponse<PostSearchDTO> paginationResponse = buildPostsPaginationResponse(postDTOs, pageable);
 
 		return IamResponse.createSuccess(paginationResponse);
 	}
@@ -131,42 +144,40 @@ public class PostServiceImpl implements PostService {
 		Page<PostSearchDTO> postDTOs = postRepository.findAll(specification, pageable)
 				.map(postMapper::toPostSearchDTO);
 
-		if (Boolean.TRUE.equals(includeComments) && !postDTOs.isEmpty()) {
-			enrichWithComments(postDTOs);
+		if (Boolean.TRUE.equals(includeComments)) {
+			for (PostSearchDTO post : postDTOs.getContent()) {
+				enrichPostWithComments(post, 3);
+			}
 		}
 
-		enrichWithLikes(postDTOs);
+		for (PostSearchDTO post : postDTOs.getContent()) {
+			enrichPostWithLikes(post);
+		}
 
-		PaginationResponse<PostSearchDTO> response = buildPaginationResponse(postDTOs, pageable);
+		PaginationResponse<PostSearchDTO> response = buildPostsPaginationResponse(postDTOs, pageable);
 
 		return IamResponse.createSuccess(response);
 	}
 
-	private void enrichWithLikes(Page<PostSearchDTO> posts) {
-		for (PostSearchDTO post : posts.getContent()) {
-			Page<PostLikeDTO> postLikes = postLikeRepository
-					.findAllByPostIdOrderByCreatedAtDesc(post.getId(), PageRequest.of(0, 3))
-					.map(postLikeMapper::toPostLikeDTO);
+	private void enrichPostWithLikes(PostSearchDTO post) {
+		Page<PostLikeDTO> postLikes = postLikeRepository
+				.findAllByPostIdOrderByCreatedAtDesc(post.getId(), PageRequest.of(0, 3))
+				.map(postLikeMapper::toPostLikeDTO);
 
-			post.setLikes(postLikes.getContent());
-			post.setLikesCount(postLikes.getTotalElements());
-		}
+		post.setLikes(postLikes.getContent());
+		post.setLikesCount(postLikes.getTotalElements());
 	}
 
-	private void enrichWithComments(Page<PostSearchDTO> posts) {
-		if (posts.isEmpty()) return;
+	private void enrichPostWithComments(PostSearchDTO post, Integer quantity) {
+		Page<CommentDTO> comments = commentRepository
+				.findAllByPostIdOrderByCreatedAtDesc(post.getId(), PageRequest.of(0, quantity))
+				.map(commentMapper::toCommentDTO);
 
-		for (PostSearchDTO post : posts.getContent()) {
-			Page<CommentDTO> comments = commentRepository
-					.findAllByPostIdOrderByCreatedAtDesc(post.getId(), PageRequest.of(0, 3))
-					.map(commentMapper::toCommentDTO);
-
-			post.setTotalComments(comments.getTotalElements());
-			post.setPreviewComments(comments.getContent());
-		}
+		post.setTotalComments(comments.getTotalElements());
+		post.setPreviewComments(comments.getContent());
 	}
 
-	private PaginationResponse<PostSearchDTO> buildPaginationResponse(
+	private PaginationResponse<PostSearchDTO> buildPostsPaginationResponse(
 			Page<PostSearchDTO> postDTOs,
 			Pageable pageable
 	) {
