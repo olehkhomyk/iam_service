@@ -60,21 +60,26 @@ public class CommentServiceImpl implements CommentService {
 		Comment savedComment = commentRepository.save(comment);
 		CommentDTO commentDTO = commentMapper.toCommentDTO(savedComment);
 
+		commentDTO.setLikesCount(0L);
+		commentDTO.setLikes(new ArrayList<>());
+
 		return IamResponse.createSuccess(commentDTO);
 	}
 
-	// TODO: enrich with likes.
 	@Override
+	@Transactional(readOnly = true)
 	public IamResponse<CommentDTO> getById(@NotNull Integer postId, @NotNull Integer commentId) {
 		Comment comment = commentRepository.findByIdAndPostId(commentId, postId)
 				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.COMMENT_NOT_FOUND_BY_ID.getMessage(commentId)));
 
 		CommentDTO commentDTO = commentMapper.toCommentDTO(comment);
+		enrichCommentWithLikes(commentDTO, 10);
 
 		return IamResponse.createSuccess(commentDTO);
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public IamResponse<ArrayList<CommentDTO>> getByPostId(@NotNull Integer postId) {
 		validatePostExistence(postId);
 
@@ -119,9 +124,9 @@ public class CommentServiceImpl implements CommentService {
 
 	private void enrichCommentWithLikes(CommentDTO commentDTO, Integer quantity) {
 		Page<CommentLikeDTO> commentLikeDTO = commentLikeRepository.findAllByCommentIdOrderByCreatedAtDesc(
-						commentDTO.getId(),
-						PageRequest.of(0, quantity)
-				).map(commentLikeMapper::toCommentLikeDTO);
+				commentDTO.getId(),
+				PageRequest.of(0, quantity)
+		).map(commentLikeMapper::toCommentLikeDTO);
 
 		commentDTO.setLikes(commentLikeDTO.getContent());
 		commentDTO.setLikesCount(commentLikeDTO.getTotalElements());
