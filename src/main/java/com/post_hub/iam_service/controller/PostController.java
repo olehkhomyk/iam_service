@@ -67,7 +67,7 @@ public class PostController {
 		return ResponseEntity.ok(response);
 	}
 
-	@PostMapping("${end.point.create}")
+	@PostMapping()
 	public ResponseEntity<IamResponse<PostDTO>> createPost(
 			@RequestBody @Valid PostRequest postRequest,
 			Principal principal) {

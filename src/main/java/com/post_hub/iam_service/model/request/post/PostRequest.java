@@ -20,7 +20,4 @@ public class PostRequest implements Serializable {
 	@NotBlank(message = "Content cannot be empty")
 	@Size(max = 1000, message = "Content must not exceed 1000 characters")
 	private String content;
-	// Not null allow: "" | "   " | 0
-	@NotNull(message = "Likes cannot be empty")
-	private Integer likes;
 }

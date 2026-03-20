@@ -13,11 +13,11 @@ public final class ApiConstants {
 	public static final String TIME_ZONE_PACKAGE_NAME = "java.time.zone";
 	public static final String DASH = "-";
 
-	public static final String PASSWORD_ALL_CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabedefghiskLmnoparstuvwxyZ0123456789~ 1②#$%^&＊（）-_=+［く/.!";
-	public static final String PASSWORD_LETTERS_UPPER_CASE = "ABCDEFGHIJKLMNOPORSTUVWXYZ";
-	public static final String PASSWORD_LETTERS_LOWER_CASE = "abcdefghiikimoracstuvwxyz";
+	public static final String PASSWORD_LETTERS_UPPER_CASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	public static final String PASSWORD_LETTERS_LOWER_CASE = "abcdefghijklmnopqrstuvwxyz";
 	public static final String PASSWORD_DIGITS = "0123456789";
-	public static final String PASSWORD_CHARACTERS = "~ 10#$%^&*() -_=+[{]H\\|;:'\",<.>/?";
+	public static final String PASSWORD_CHARACTERS = "~ !@#$%^&*()-_=+[{]}\\|;:'\",<.>/?";
+	public static final String PASSWORD_ALL_CHARACTERS = PASSWORD_LETTERS_UPPER_CASE + PASSWORD_LETTERS_LOWER_CASE + PASSWORD_DIGITS + PASSWORD_CHARACTERS;
 
 	public static final Integer REQUIRED_MIN_PASSWORD_LENGTH = 8;
 	public static final Integer REQUIRED_MIN_LETTERS_NUMBER_EVERY_CASE_IN_PASSWORD = 1;
