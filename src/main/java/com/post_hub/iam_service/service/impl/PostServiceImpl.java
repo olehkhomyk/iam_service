@@ -163,6 +163,10 @@ public class PostServiceImpl implements PostService {
 	@Override
 	@Transactional
 	public void likePost(@NotNull Integer postId, @NotNull Integer userId) {
+		if (postLikeRepository.existsByPostIdAndUserId(postId, userId)) {
+			throw new DataExistException(ApiErrorMessage.POST_ALREADY_LIKED.getMessage(postId));
+		}
+
 		Post post = postRepository.findByIdAndDeletedFalse(postId)
 				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.POST_NOT_FOUND_BY_ID.getMessage(postId)));
 		User user = userRepository.findById(userId)
@@ -175,6 +179,10 @@ public class PostServiceImpl implements PostService {
 	@Override
 	@Transactional
 	public void unlikePost(@NotNull Integer postId, @NotNull Integer userId) {
+		if (!postLikeRepository.existsByPostIdAndUserId(postId, userId)) {
+			throw new NotFoundException(ApiErrorMessage.POST_LIKE_NOT_FOUND.getMessage(postId));
+		}
+
 		postLikeRepository.deleteByPostIdAndUserId(postId, userId);
 	}
 

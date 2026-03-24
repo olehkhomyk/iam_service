@@ -15,6 +15,8 @@ public enum ApiErrorMessage {
 
 	POST_NOT_FOUND_BY_ID("Post wit ID: %s was not found"),
 	POST_ALREADY_EXISTS("Post wit title: %s already exists"),
+	POST_ALREADY_LIKED("Post with ID: %s is already liked by this user"),
+	POST_LIKE_NOT_FOUND("Like for post with ID: %s was not found for this user"),
 
 	COMMENT_NOT_FOUND_BY_ID("Comment wit ID: %s was not found"),
 
