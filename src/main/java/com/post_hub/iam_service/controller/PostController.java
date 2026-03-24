@@ -87,6 +87,15 @@ public class PostController {
 		return ResponseEntity.ok().build();
 	}
 
+	@DeleteMapping("${end.point.id}/like")
+	public ResponseEntity<Void> unlikePost(@PathVariable(name = "id") Integer postId) {
+		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
+		Integer userId = apiUtils.getUserIdFromAuthentication();
+
+		postService.unlikePost(postId, userId);
+		return ResponseEntity.ok().build();
+	}
+
 	@PutMapping("${end.point.id}")
 	public ResponseEntity<IamResponse<PostDTO>> updatePostById(
 			@PathVariable(name = "id") Integer id,

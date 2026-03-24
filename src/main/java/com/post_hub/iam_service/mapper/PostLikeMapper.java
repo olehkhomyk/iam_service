@@ -18,5 +18,7 @@ public interface PostLikeMapper {
     PostLikeDTO toPostLikeDTO(PostLike postLike);
 
 	@Mapping(target = "id", ignore = true)
+	@Mapping(source = "post", target = "post")
+	@Mapping(source = "user", target = "user")
 	PostLike createPostLike(Post post, User user);
 }

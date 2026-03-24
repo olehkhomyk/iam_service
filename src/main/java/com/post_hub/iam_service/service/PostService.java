@@ -27,4 +27,6 @@ public interface PostService {
 	IamResponse<PaginationResponse<PostSearchDTO>> searchPosts(@NotNull PostSearchRequest request, Pageable pageable, Boolean includeComments);
 
 	void likePost(@NotNull Integer postId, @NotNull Integer userId);
+
+	void unlikePost(@NotNull Integer postId, @NotNull Integer userId);
 }

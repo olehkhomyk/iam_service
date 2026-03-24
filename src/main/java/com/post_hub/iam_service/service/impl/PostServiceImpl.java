@@ -37,6 +37,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -160,6 +161,7 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
+	@Transactional
 	public void likePost(@NotNull Integer postId, @NotNull Integer userId) {
 		Post post = postRepository.findByIdAndDeletedFalse(postId)
 				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.POST_NOT_FOUND_BY_ID.getMessage(postId)));
@@ -168,6 +170,12 @@ public class PostServiceImpl implements PostService {
 
 		PostLike like = postLikeMapper.createPostLike(post, user);
 		postLikeRepository.save(like);
+	}
+
+	@Override
+	@Transactional
+	public void unlikePost(@NotNull Integer postId, @NotNull Integer userId) {
+		postLikeRepository.deleteByPostIdAndUserId(postId, userId);
 	}
 
 	private void enrichPostWithLikes(PostSearchDTO post) {
