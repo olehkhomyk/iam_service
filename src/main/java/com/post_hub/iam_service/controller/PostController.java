@@ -31,6 +31,7 @@ import java.security.Principal;
 @Tag(name = "Posts", description = "Post endpoints")
 public class PostController {
 	private final PostService postService;
+	private final ApiUtils apiUtils;
 
 	@GetMapping("${end.point.id}")
 	public ResponseEntity<IamResponse<PostDTO>> getPostById(
@@ -69,12 +70,21 @@ public class PostController {
 
 	@PostMapping()
 	public ResponseEntity<IamResponse<PostDTO>> createPost(
-			@RequestBody @Valid PostRequest postRequest,
-			Principal principal) {
+			@RequestBody @Valid PostRequest postRequest) {
 		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
+		Integer userId = apiUtils.getUserIdFromAuthentication();
 
-		IamResponse<PostDTO> response = postService.create(postRequest, principal.getName());
+		IamResponse<PostDTO> response = postService.create(postRequest, userId);
 		return ResponseEntity.ok(response);
+	}
+
+	@PostMapping("${end.point.id}/like")
+	public ResponseEntity<Void> likePost(@PathVariable(name = "id") Integer postId) {
+		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
+		Integer userId = apiUtils.getUserIdFromAuthentication();
+
+		postService.likePost(postId, userId);
+		return ResponseEntity.ok().build();
 	}
 
 	@PutMapping("${end.point.id}")

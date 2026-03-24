@@ -14,7 +14,7 @@ import org.springframework.data.domain.Pageable;
 public interface PostService {
 	IamResponse<PostDTO> getById(@NotNull Integer id);
 
-	IamResponse<PostDTO> create(@NotNull PostRequest postRequest, String username);
+	IamResponse<PostDTO> create(@NotNull PostRequest postRequest, Integer userId);
 
 	IamResponse<PostDTO> update(@NotNull Integer id, @NotNull UpdatePostRequest updatePostRequest);
 
@@ -25,4 +25,6 @@ public interface PostService {
 	IamResponse<PaginationResponse<PostSearchDTO>> findAllPosts(Pageable pageable, Boolean includeComments);
 
 	IamResponse<PaginationResponse<PostSearchDTO>> searchPosts(@NotNull PostSearchRequest request, Pageable pageable, Boolean includeComments);
+
+	void likePost(@NotNull Integer postId, @NotNull Integer userId);
 }

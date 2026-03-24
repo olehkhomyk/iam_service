@@ -9,6 +9,7 @@ import com.post_hub.iam_service.model.dto.post.PostDTO;
 import com.post_hub.iam_service.model.dto.post.PostSearchDTO;
 import com.post_hub.iam_service.model.dto.postLike.PostLikeDTO;
 import com.post_hub.iam_service.model.entity.Post;
+import com.post_hub.iam_service.model.entity.PostLike;
 import com.post_hub.iam_service.model.entity.User;
 import com.post_hub.iam_service.model.exception.DataExistException;
 import com.post_hub.iam_service.model.exception.NotFoundException;
@@ -62,19 +63,18 @@ public class PostServiceImpl implements PostService {
 		return IamResponse.createSuccess(postDTO);
 	}
 
-	// TODO: enrich with comments and likes.
 	@Override
-	public IamResponse<PostDTO> create(@NotNull PostRequest postRequest, String username) {
+	public IamResponse<PostDTO> create(@NotNull PostRequest postRequest, Integer userId) {
 		if (postRepository.existsByTitle(postRequest.getTitle())) {
 			throw new DataExistException(ApiErrorMessage.POST_ALREADY_EXISTS.getMessage(postRequest.getTitle()));
 		}
 
-		User user = userRepository.findByUsername(username)
-				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.USERNAME_NOT_FOUND.getMessage(username)));
+		User user = userRepository.findById(userId)
+				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.USER_NOT_FOUND_BY_ID.getMessage(userId)));
 
 		Post post = postMapper.createPost(postRequest);
 		post.setUser(user);
-		post.setCreatedBy(username);
+		post.setCreatedBy(user.getUsername());
 		Post savedPost = postRepository.save(post);
 		PostDTO savedPostDTO = postMapper.toPostDTO(savedPost);
 
@@ -157,6 +157,17 @@ public class PostServiceImpl implements PostService {
 		PaginationResponse<PostSearchDTO> response = buildPostsPaginationResponse(postDTOs, pageable);
 
 		return IamResponse.createSuccess(response);
+	}
+
+	@Override
+	public void likePost(@NotNull Integer postId, @NotNull Integer userId) {
+		Post post = postRepository.findByIdAndDeletedFalse(postId)
+				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.POST_NOT_FOUND_BY_ID.getMessage(postId)));
+		User user = userRepository.findById(userId)
+				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.USER_NOT_FOUND_BY_ID.getMessage(userId)));
+
+		PostLike like = postLikeMapper.createPostLike(post, user);
+		postLikeRepository.save(like);
 	}
 
 	private void enrichPostWithLikes(PostSearchDTO post) {

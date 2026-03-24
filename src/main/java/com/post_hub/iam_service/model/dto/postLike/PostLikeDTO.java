@@ -5,14 +5,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class PostLikeDTO implements Serializable {
     private Long id;
-    private Long postId;
     private Long userId;
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 }
