@@ -9,4 +9,6 @@ import org.springframework.data.domain.Pageable;
 
 public interface CommentLikeRepository extends JpaRepository<CommentLike, Long> {
 	Page<CommentLike> findAllByCommentIdOrderByCreatedAtDesc(@NotNull Integer commentId, Pageable pageable);
+	Boolean existsByCommentIdAndUserId(@NotNull Integer commentId, @NotNull Integer userId);
+	void deleteByCommentIdAndUserId(@NotNull Integer commentId, @NotNull Integer userId);
 }

@@ -5,9 +5,8 @@ import com.post_hub.iam_service.mapper.CommentMapper;
 import com.post_hub.iam_service.model.constants.ApiErrorMessage;
 import com.post_hub.iam_service.model.dto.comment.CommentDTO;
 import com.post_hub.iam_service.model.dto.commentLike.CommentLikeDTO;
-import com.post_hub.iam_service.model.entity.Comment;
-import com.post_hub.iam_service.model.entity.Post;
-import com.post_hub.iam_service.model.entity.User;
+import com.post_hub.iam_service.model.entity.*;
+import com.post_hub.iam_service.model.exception.DataExistException;
 import com.post_hub.iam_service.model.exception.NotFoundException;
 import com.post_hub.iam_service.model.request.comment.CommentRequest;
 import com.post_hub.iam_service.model.respsonse.IamResponse;
@@ -119,7 +118,33 @@ public class CommentServiceImpl implements CommentService {
 
 		accessValidator.validateAdminOrOwnerAccess(comment.getUser().getId());
 
-		commentRepository.deleteById(commentId.longValue());
+		commentRepository.deleteById(commentId);
+	}
+
+	@Override
+	@Transactional
+	public void likeComment(@NotNull Integer commentId, @NotNull Integer userId) {
+		if (commentLikeRepository.existsByCommentIdAndUserId(commentId, userId)) {
+			throw new DataExistException(ApiErrorMessage.COMMENT_NOT_FOUND_BY_ID.getMessage(commentId));
+		}
+
+		Comment comment = commentRepository.findById(commentId)
+				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.COMMENT_NOT_FOUND_BY_ID.getMessage(commentId)));
+		User user = userRepository.findById(userId)
+				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.USER_NOT_FOUND_BY_ID.getMessage(userId)));
+
+		CommentLike like = commentLikeMapper.createCommentLike(comment, user);
+		commentLikeRepository.save(like);
+	}
+
+	@Override
+	@Transactional
+	public void unlikeComment(@NotNull Integer commentId, @NotNull Integer userId) {
+		if (!commentLikeRepository.existsByCommentIdAndUserId(commentId, userId)) {
+			throw new NotFoundException(ApiErrorMessage.COMMENT_NOT_FOUND_BY_ID.getMessage(commentId));
+		}
+
+		commentLikeRepository.deleteByCommentIdAndUserId(commentId, userId);
 	}
 
 	private void enrichCommentWithLikes(CommentDTO commentDTO, Integer quantity) {

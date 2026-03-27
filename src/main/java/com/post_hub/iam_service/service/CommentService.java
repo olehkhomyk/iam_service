@@ -19,4 +19,8 @@ public interface CommentService {
 	IamResponse<PaginationResponse<CommentDTO>> getAllByPostId(@NotNull Integer postId, Pageable pageable);
 
 	void deleteById(@NotNull Integer postId, @NotNull Integer id);
+
+	void likeComment(@NotNull Integer commentId, @NotNull Integer userId);
+
+	void unlikeComment(@NotNull Integer commentId, @NotNull Integer userId);
 }

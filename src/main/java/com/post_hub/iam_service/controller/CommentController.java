@@ -2,7 +2,9 @@ package com.post_hub.iam_service.controller;
 
 import com.post_hub.iam_service.model.constants.ApiLogMessage;
 import com.post_hub.iam_service.model.dto.comment.CommentDTO;
+import com.post_hub.iam_service.model.dto.post.PostDTO;
 import com.post_hub.iam_service.model.request.comment.CommentRequest;
+import com.post_hub.iam_service.model.request.post.UpdatePostRequest;
 import com.post_hub.iam_service.model.respsonse.IamResponse;
 import com.post_hub.iam_service.model.respsonse.PaginationResponse;
 import com.post_hub.iam_service.service.CommentService;
@@ -27,6 +29,7 @@ import java.security.Principal;
 @Tag(name = "Comments", description = "Comment endpoints")
 public class CommentController {
 	private final CommentService commentService;
+	private final ApiUtils apiUtils;
 
 	@PostMapping
 	public ResponseEntity<IamResponse<CommentDTO>> create(
@@ -62,7 +65,7 @@ public class CommentController {
 		return ResponseEntity.ok(result);
 	}
 
-	@DeleteMapping("/{id}")
+	@DeleteMapping("${end.point.id}")
 	public ResponseEntity<Void> deleteById(
 			@PathVariable(name = "postId") Integer postId,
 			@PathVariable(name = "id") Integer id) {
@@ -70,6 +73,24 @@ public class CommentController {
 
 		commentService.deleteById(postId, id);
 
+		return ResponseEntity.ok().build();
+	}
+
+	@PostMapping("${end.point.id}/like")
+	public ResponseEntity<Void> likeComment(@PathVariable(name = "id") Integer commentId) {
+		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
+		Integer userId = apiUtils.getUserIdFromAuthentication();
+
+		commentService.likeComment(commentId, userId);
+		return ResponseEntity.ok().build();
+	}
+
+	@DeleteMapping("${end.point.id}/like")
+	public ResponseEntity<Void> unlikeComment(@PathVariable(name = "id") Integer commentId) {
+		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
+		Integer userId = apiUtils.getUserIdFromAuthentication();
+
+		commentService.unlikeComment(commentId, userId);
 		return ResponseEntity.ok().build();
 	}
 }
