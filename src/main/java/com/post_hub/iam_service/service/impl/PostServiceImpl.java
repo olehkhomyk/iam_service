@@ -1,5 +1,6 @@
 package com.post_hub.iam_service.service.impl;
 
+import com.post_hub.iam_service.component.CommentEnricher;
 import com.post_hub.iam_service.mapper.CommentMapper;
 import com.post_hub.iam_service.mapper.PostLikeMapper;
 import com.post_hub.iam_service.mapper.PostMapper;
@@ -18,10 +19,7 @@ import com.post_hub.iam_service.model.request.post.PostSearchRequest;
 import com.post_hub.iam_service.model.request.post.UpdatePostRequest;
 import com.post_hub.iam_service.model.respsonse.IamResponse;
 import com.post_hub.iam_service.model.respsonse.PaginationResponse;
-import com.post_hub.iam_service.repository.CommentRepository;
-import com.post_hub.iam_service.repository.PostLikeRepository;
-import com.post_hub.iam_service.repository.PostRepository;
-import com.post_hub.iam_service.repository.UserRepository;
+import com.post_hub.iam_service.repository.*;
 import com.post_hub.iam_service.repository.criteria.PostSearchCriteria;
 import com.post_hub.iam_service.security.validatiton.AccessValidator;
 import com.post_hub.iam_service.service.PostService;
@@ -51,6 +49,7 @@ public class PostServiceImpl implements PostService {
 	private final UserRepository userRepository;
 	private final CommentRepository commentRepository;
 	private final PostLikeRepository postLikeRepository;
+	private final CommentEnricher commentEnricher;
 	private final AccessValidator accessValidator;
 
 	// TODO: enrich with comments and likes.
@@ -202,6 +201,8 @@ public class PostServiceImpl implements PostService {
 
 		post.setTotalComments(comments.getTotalElements());
 		post.setPreviewComments(comments.getContent());
+
+		commentEnricher.enrichWithLikes(comments.getContent(), 3);
 	}
 
 	private PaginationResponse<PostSearchDTO> buildPostsPaginationResponse(

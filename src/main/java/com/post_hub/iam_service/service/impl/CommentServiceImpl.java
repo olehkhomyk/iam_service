@@ -1,5 +1,6 @@
 package com.post_hub.iam_service.service.impl;
 
+import com.post_hub.iam_service.component.CommentEnricher;
 import com.post_hub.iam_service.mapper.CommentLikeMapper;
 import com.post_hub.iam_service.mapper.CommentMapper;
 import com.post_hub.iam_service.model.constants.ApiErrorMessage;
@@ -40,6 +41,7 @@ public class CommentServiceImpl implements CommentService {
 	private final CommentLikeRepository commentLikeRepository;
 	private final CommentMapper commentMapper;
 	private final CommentLikeMapper commentLikeMapper;
+	private final CommentEnricher commentEnricher;
 	private final AccessValidator accessValidator;
 
 	@Override
@@ -72,7 +74,7 @@ public class CommentServiceImpl implements CommentService {
 				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.COMMENT_NOT_FOUND_BY_ID.getMessage(commentId)));
 
 		CommentDTO commentDTO = commentMapper.toCommentDTO(comment);
-		enrichCommentWithLikes(commentDTO, 10);
+		commentEnricher.enrichWithLikes(commentDTO, 10);
 
 		return IamResponse.createSuccess(commentDTO);
 	}
@@ -87,9 +89,7 @@ public class CommentServiceImpl implements CommentService {
 				.map(commentMapper::toCommentDTO)
 				.toList());
 
-		for (CommentDTO commentDTO : commentDTOs) {
-			enrichCommentWithLikes(commentDTO, 3);
-		}
+		commentEnricher.enrichWithLikes(commentDTOs, 3);
 
 		return IamResponse.createSuccess(commentDTOs);
 	}
@@ -101,10 +101,7 @@ public class CommentServiceImpl implements CommentService {
 
 		Page<CommentDTO> comments = commentRepository.findAllByPostIdOrderByCreatedAtDesc(postId, pageable)
 				.map(commentMapper::toCommentDTO);
-
-		for (CommentDTO commentDTO : comments.getContent()) {
-			enrichCommentWithLikes(commentDTO, 3);
-		}
+		commentEnricher.enrichWithLikes(comments.getContent(), 3);
 
 		PaginationResponse<CommentDTO> paginationResponse = buildCommetsPaginationResponse(comments, pageable);
 
@@ -145,16 +142,6 @@ public class CommentServiceImpl implements CommentService {
 		}
 
 		commentLikeRepository.deleteByCommentIdAndUserId(commentId, userId);
-	}
-
-	private void enrichCommentWithLikes(CommentDTO commentDTO, Integer quantity) {
-		Page<CommentLikeDTO> commentLikeDTO = commentLikeRepository.findAllByCommentIdOrderByCreatedAtDesc(
-				commentDTO.getId(),
-				PageRequest.of(0, quantity)
-		).map(commentLikeMapper::toCommentLikeDTO);
-
-		commentDTO.setLikes(commentLikeDTO.getContent());
-		commentDTO.setLikesCount(commentLikeDTO.getTotalElements());
 	}
 
 	private PaginationResponse<CommentDTO> buildCommetsPaginationResponse(Page<CommentDTO> commentDTOS, Pageable pageable) {
