@@ -1,6 +1,7 @@
 package com.post_hub.iam_service.service.impl;
 
 import com.post_hub.iam_service.component.CommentEnricher;
+import com.post_hub.iam_service.component.PostEnricher;
 import com.post_hub.iam_service.mapper.CommentMapper;
 import com.post_hub.iam_service.mapper.PostLikeMapper;
 import com.post_hub.iam_service.mapper.PostMapper;
@@ -8,7 +9,6 @@ import com.post_hub.iam_service.model.constants.ApiErrorMessage;
 import com.post_hub.iam_service.model.dto.comment.CommentDTO;
 import com.post_hub.iam_service.model.dto.post.PostDTO;
 import com.post_hub.iam_service.model.dto.post.PostSearchDTO;
-import com.post_hub.iam_service.model.dto.postLike.PostLikeDTO;
 import com.post_hub.iam_service.model.entity.Post;
 import com.post_hub.iam_service.model.entity.PostLike;
 import com.post_hub.iam_service.model.entity.User;
@@ -35,8 +35,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -50,15 +48,16 @@ public class PostServiceImpl implements PostService {
 	private final CommentRepository commentRepository;
 	private final PostLikeRepository postLikeRepository;
 	private final CommentEnricher commentEnricher;
+	private final PostEnricher postEnricher;
 	private final AccessValidator accessValidator;
 
-	// TODO: enrich with comments and likes.
 	@Override
 	public IamResponse<PostDTO> getById(@NotNull Integer id) {
 		Post post = postRepository.findByIdAndDeletedFalse(id)
 				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.POST_NOT_FOUND_BY_ID.getMessage(id)));
 
 		PostDTO postDTO = postMapper.toPostDTO(post);
+		postEnricher.enrichWithLikes(postDTO, 10);
 
 		return IamResponse.createSuccess(postDTO);
 	}
@@ -81,7 +80,6 @@ public class PostServiceImpl implements PostService {
 		return IamResponse.createSuccess(savedPostDTO);
 	}
 
-	// TODO: enrich with comments and likes.
 	@Override
 	public IamResponse<PostDTO> update(@NotNull Integer id, @NotNull UpdatePostRequest postRequest) {
 		Post post = postRepository.findByIdAndDeletedFalse(id)
@@ -93,6 +91,8 @@ public class PostServiceImpl implements PostService {
 		post.setUpdated(LocalDateTime.now());
 		Post savedPost = postRepository.save(post);
 		PostDTO savedPostDTO = postMapper.toPostDTO(savedPost);
+
+		postEnricher.enrichWithLikes(savedPostDTO, 3);
 
 		return IamResponse.createSuccess(savedPostDTO);
 	}
@@ -128,9 +128,7 @@ public class PostServiceImpl implements PostService {
 			}
 		}
 
-		for (PostSearchDTO post : postDTOs.getContent()) {
-			enrichPostWithLikes(post);
-		}
+		postEnricher.enrichSearchWithLikes(postDTOs.getContent(), 3);
 
 		PaginationResponse<PostSearchDTO> paginationResponse = buildPostsPaginationResponse(postDTOs, pageable);
 
@@ -150,9 +148,7 @@ public class PostServiceImpl implements PostService {
 			}
 		}
 
-		for (PostSearchDTO post : postDTOs.getContent()) {
-			enrichPostWithLikes(post);
-		}
+		postEnricher.enrichSearchWithLikes(postDTOs.getContent(), 3);
 
 		PaginationResponse<PostSearchDTO> response = buildPostsPaginationResponse(postDTOs, pageable);
 
@@ -183,15 +179,6 @@ public class PostServiceImpl implements PostService {
 		}
 
 		postLikeRepository.deleteByPostIdAndUserId(postId, userId);
-	}
-
-	private void enrichPostWithLikes(PostSearchDTO post) {
-		Page<PostLikeDTO> postLikes = postLikeRepository
-				.findAllByPostIdOrderByCreatedAtDesc(post.getId(), PageRequest.of(0, 3))
-				.map(postLikeMapper::toPostLikeDTO);
-
-		post.setLikes(postLikes.getContent());
-		post.setLikesCount(postLikes.getTotalElements());
 	}
 
 	private void enrichPostWithComments(PostSearchDTO post, Integer quantity) {
