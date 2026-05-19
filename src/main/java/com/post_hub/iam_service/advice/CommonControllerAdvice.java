@@ -3,6 +3,7 @@ package com.post_hub.iam_service.advice;
 import com.post_hub.iam_service.model.constants.ApiConstants;
 import com.post_hub.iam_service.model.enums.ErrorCode;
 import com.post_hub.iam_service.model.exception.DataExistException;
+import com.post_hub.iam_service.model.exception.InvalidDataException;
 import com.post_hub.iam_service.model.exception.InvalidPasswordException;
 import com.post_hub.iam_service.model.exception.NotFoundException;
 import com.post_hub.iam_service.model.respsonse.ErrorResponse;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -89,6 +91,51 @@ public class CommonControllerAdvice {
 		);
 
 		return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+	}
+
+	@ExceptionHandler(InvalidDataException.class)
+	@ResponseBody
+	protected ResponseEntity<IamResponse<ErrorResponse>> handleInvalidDataException(InvalidDataException ex) {
+		logStackTrace(ex);
+
+		IamResponse<ErrorResponse> response = IamResponse.createError(
+				ErrorCode.INVALID_DATA,
+				ex.getMessage()
+		);
+
+		return ResponseEntity
+				.status(HttpStatus.BAD_REQUEST)
+				.body(response);
+	}
+
+	@ExceptionHandler(MaxUploadSizeExceededException.class)
+	@ResponseBody
+	protected ResponseEntity<IamResponse<ErrorResponse>> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException ex) {
+		logStackTrace(ex);
+
+		IamResponse<ErrorResponse> response = IamResponse.createError(
+				ErrorCode.INVALID_DATA,
+				"File size exceeds the maximum allowed limit"
+		);
+
+		return ResponseEntity
+				.status(HttpStatus.BAD_REQUEST)
+				.body(response);
+	}
+
+	@ExceptionHandler(RuntimeException.class)
+	@ResponseBody
+	protected ResponseEntity<IamResponse<ErrorResponse>> handleRuntimeException(RuntimeException ex) {
+		logStackTrace(ex);
+
+		IamResponse<ErrorResponse> response = IamResponse.createError(
+				ErrorCode.INTERNAL_SERVER_ERROR,
+				ex.getMessage()
+		);
+
+		return ResponseEntity
+				.status(HttpStatus.INTERNAL_SERVER_ERROR)
+				.body(response);
 	}
 
 	@ExceptionHandler(AccessDeniedException.class)

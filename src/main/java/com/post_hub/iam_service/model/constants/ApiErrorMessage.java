@@ -34,6 +34,10 @@ public enum ApiErrorMessage {
 	INVALID_USER_REGISTRATION_STATUS("Invalid user registration status: %s"),
 	NOT_FOUND_REFRESH_TOKEN("Refresh token not found"),
 
+	EMPTY_FILE("File is empty"),
+	INVALID_FILE_TYPE("Invalid file type. Allowed types: %s"),
+	FILE_SIZE_EXCEEDED("File size exceeds the maximum allowed size of %s MB"),
+
 	MISMATCH_PASSWORDS("Password does not match"),
 	INVALID_PASSWORD("Invalid password. It must have: "
 			+ "length at least " + ApiConstants.REQUIRED_MIN_PASSWORD_LENGTH + ", including "
