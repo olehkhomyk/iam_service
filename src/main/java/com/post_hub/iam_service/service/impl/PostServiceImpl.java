@@ -22,8 +22,10 @@ import com.post_hub.iam_service.model.respsonse.PaginationResponse;
 import com.post_hub.iam_service.repository.*;
 import com.post_hub.iam_service.repository.criteria.PostSearchCriteria;
 import com.post_hub.iam_service.security.validatiton.AccessValidator;
+import com.post_hub.iam_service.service.FileService;
 import com.post_hub.iam_service.service.PostService;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.web.multipart.MultipartFile;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
@@ -50,6 +52,7 @@ public class PostServiceImpl implements PostService {
 	private final CommentEnricher commentEnricher;
 	private final PostEnricher postEnricher;
 	private final AccessValidator accessValidator;
+	private final FileService fileService;
 
 	@Override
 	public IamResponse<PostDTO> getById(@NotNull Integer id) {
@@ -63,7 +66,7 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
-	public IamResponse<PostDTO> create(@NotNull PostRequest postRequest, Integer userId) {
+	public IamResponse<PostDTO> create(@NotNull PostRequest postRequest, Integer userId, MultipartFile image) {
 		if (postRepository.existsByTitle(postRequest.getTitle())) {
 			throw new DataExistException(ApiErrorMessage.POST_ALREADY_EXISTS.getMessage(postRequest.getTitle()));
 		}
@@ -74,6 +77,12 @@ public class PostServiceImpl implements PostService {
 		Post post = postMapper.createPost(postRequest);
 		post.setUser(user);
 		post.setCreatedBy(user.getUsername());
+
+		if (image != null && !image.isEmpty()) {
+			String key = fileService.upload(image).getPayload().getKey();
+			post.setImageKey(key);
+		}
+
 		Post savedPost = postRepository.save(post);
 		PostDTO savedPostDTO = postMapper.toPostDTO(savedPost);
 
@@ -81,11 +90,19 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
-	public IamResponse<PostDTO> update(@NotNull Integer id, @NotNull UpdatePostRequest postRequest) {
+	public IamResponse<PostDTO> update(@NotNull Integer id, @NotNull UpdatePostRequest postRequest, MultipartFile image) {
 		Post post = postRepository.findByIdAndDeletedFalse(id)
 				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.POST_NOT_FOUND_BY_ID.getMessage(id)));
 
 		accessValidator.validateAdminOrOwnerAccess(post.getUser().getId());
+
+		if (image != null && !image.isEmpty()) {
+			if (post.getImageKey() != null) {
+				fileService.delete(post.getImageKey());
+			}
+			String key = fileService.upload(image).getPayload().getKey();
+			post.setImageKey(key);
+		}
 
 		postMapper.updatePost(post, postRequest);
 		post.setUpdated(LocalDateTime.now());

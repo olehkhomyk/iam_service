@@ -8,15 +8,16 @@ import com.post_hub.iam_service.model.request.post.UpdatePostRequest;
 import com.post_hub.iam_service.model.respsonse.IamResponse;
 import com.post_hub.iam_service.model.respsonse.PaginationResponse;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.web.multipart.MultipartFile;
 
 import org.springframework.data.domain.Pageable;
 
 public interface PostService {
 	IamResponse<PostDTO> getById(@NotNull Integer id);
 
-	IamResponse<PostDTO> create(@NotNull PostRequest postRequest, Integer userId);
+	IamResponse<PostDTO> create(@NotNull PostRequest postRequest, Integer userId, MultipartFile image);
 
-	IamResponse<PostDTO> update(@NotNull Integer id, @NotNull UpdatePostRequest updatePostRequest);
+	IamResponse<PostDTO> update(@NotNull Integer id, @NotNull UpdatePostRequest updatePostRequest, MultipartFile image);
 
 	void sofDeletePost(@NotNull Integer id);
 

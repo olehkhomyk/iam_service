@@ -15,12 +15,12 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Pageable;
-
-import java.security.Principal;
+import org.springframework.web.multipart.MultipartFile;
 
 
 @Slf4j
@@ -68,13 +68,14 @@ public class PostController {
 		return ResponseEntity.ok(response);
 	}
 
-	@PostMapping()
+	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<IamResponse<PostDTO>> createPost(
-			@RequestBody @Valid PostRequest postRequest) {
+			@RequestPart("post") @Valid PostRequest postRequest,
+			@RequestPart(value = "image", required = false) MultipartFile image) {
 		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
 		Integer userId = apiUtils.getUserIdFromAuthentication();
 
-		IamResponse<PostDTO> response = postService.create(postRequest, userId);
+		IamResponse<PostDTO> response = postService.create(postRequest, userId, image);
 		return ResponseEntity.ok(response);
 	}
 
@@ -96,13 +97,14 @@ public class PostController {
 		return ResponseEntity.ok().build();
 	}
 
-	@PutMapping("${end.point.id}")
+	@PutMapping(value = "${end.point.id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<IamResponse<PostDTO>> updatePostById(
 			@PathVariable(name = "id") Integer id,
-			@RequestBody @Valid UpdatePostRequest request) {
+			@RequestPart("post") @Valid UpdatePostRequest request,
+			@RequestPart(value = "image", required = false) MultipartFile image) {
 		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
 
-		IamResponse<PostDTO> updatedPost = postService.update(id, request);
+		IamResponse<PostDTO> updatedPost = postService.update(id, request, image);
 		return ResponseEntity.ok(updatedPost);
 	}
 
