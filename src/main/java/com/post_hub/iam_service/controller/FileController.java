@@ -8,6 +8,9 @@ import com.post_hub.iam_service.utils.ApiUtils;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -36,5 +39,15 @@ public class FileController {
 		fileService.delete(key);
 
 		return ResponseEntity.ok().build();
+	}
+
+	@GetMapping("/{key:.+}")
+	public ResponseEntity<Resource> get(@PathVariable("key") String key) {
+		byte[] data = fileService.download(key);
+		ByteArrayResource resource = new ByteArrayResource(data);
+
+		return ResponseEntity.ok()
+				.contentType(MediaType.IMAGE_JPEG)
+				.body(resource);
 	}
 }

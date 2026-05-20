@@ -35,6 +35,11 @@ public class FileServiceImpl implements FileService {
 	}
 
 	@Override
+	public byte[] download(String key) {
+		return minioService.download(key);
+	}
+
+	@Override
 	public void delete(String key) {
 		minioService.delete(key);
 	}

@@ -8,4 +8,6 @@ public interface MinioService {
 	void delete(String key);
 
 	String getUrl(String key);
+
+	byte[] download(String key);
 }

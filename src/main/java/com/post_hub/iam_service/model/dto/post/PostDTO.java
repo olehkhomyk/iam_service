@@ -15,6 +15,10 @@ public class PostDTO implements Serializable {
 	private String title;
 	private String content;
 	private Integer likes;
+
+	private String imageKey;
+	private String imageUrl;
+
 	private LocalDateTime created;
 	private LocalDateTime updated;
 	private String createdBy;
