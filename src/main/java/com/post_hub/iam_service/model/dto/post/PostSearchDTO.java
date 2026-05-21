@@ -23,7 +23,6 @@ public class PostSearchDTO implements Serializable {
 	private String createdBy;
 
 	private String imageKey;
-	private String imageUrl;
 
 	private List<PostLikeDTO> likes;
 	private Long likesCount;

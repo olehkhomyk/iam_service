@@ -40,9 +40,6 @@ public class Post {
 	@Column(name = "image_key")
 	private String imageKey;
 
-	@Column(name = "image_url")
-	private String imageUrl;
-
 	@ManyToOne()
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
