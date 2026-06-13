@@ -37,6 +37,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -200,7 +201,10 @@ public class PostServiceImpl implements PostService {
 
 	private void enrichPostWithComments(PostSearchDTO post, Integer quantity) {
 		Page<CommentDTO> comments = commentRepository
-				.findAllByPostIdOrderByCreatedAtDesc(post.getId(), PageRequest.of(0, quantity))
+				.findAllByPostIdAndParentCommentIsNullOrderByCreatedAtDesc(
+						post.getId(),
+						PageRequest.of(0, quantity)
+				)
 				.map(commentMapper::toCommentDTO);
 
 		post.setTotalComments(comments.getTotalElements());

@@ -13,4 +13,5 @@ import java.io.Serializable;
 public class CommentRequest implements Serializable {
 	@NotBlank(message = "Content cannot be empty")
 	private String content;
+	private Integer parentId;
 }

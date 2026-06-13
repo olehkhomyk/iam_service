@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -52,10 +53,16 @@ public class CommentServiceImpl implements CommentService {
 		User user = userRepository.findByUsername(username)
 				.orElseThrow(() -> new NotFoundException(ApiErrorMessage.USERNAME_NOT_FOUND.getMessage(username)));
 
+		Comment parentComment = Optional.ofNullable(commentRequest.getParentId())
+				.map(parentId -> commentRepository.findByIdAndPostId(parentId, postId)
+						.orElseThrow(() -> new NotFoundException(ApiErrorMessage.COMMENT_NOT_FOUND_BY_ID.getMessage(parentId))))
+				.orElse(null);
+
 		Comment comment = commentMapper.createComment(commentRequest);
 
 		comment.setPost(post);
 		comment.setUser(user);
+		comment.setParentComment(parentComment);
 		comment.setCreatedBy(username);
 
 		Comment savedComment = commentRepository.save(comment);
@@ -99,7 +106,8 @@ public class CommentServiceImpl implements CommentService {
 	public IamResponse<PaginationResponse<CommentDTO>> getAllByPostId(@NotNull Integer postId, @NotNull Pageable pageable) {
 		validatePostExistence(postId);
 
-		Page<CommentDTO> comments = commentRepository.findAllByPostIdOrderByCreatedAtDesc(postId, pageable)
+		Page<CommentDTO> comments = commentRepository
+				.findAllByPostIdAndParentCommentIsNullOrderByCreatedAtDesc(postId, pageable)
 				.map(commentMapper::toCommentDTO);
 		commentEnricher.enrichWithLikes(comments.getContent(), 3);
 

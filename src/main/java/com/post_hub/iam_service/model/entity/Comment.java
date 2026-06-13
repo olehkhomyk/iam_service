@@ -23,6 +23,10 @@ public class Comment {
 	@Column(nullable = false, length = 500)
 	private String content;
 
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "parent_id")
+	private Comment parentComment;
+
 	@ColumnDefault("CURRENT_TIMESTAMP")
 	@Column(name = "created_at", nullable = false, updatable = false)
 	private LocalDateTime createdAt = LocalDateTime.now();

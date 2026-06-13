@@ -17,9 +17,11 @@ import java.util.Objects;
 )
 public interface CommentMapper {
 	@Mapping(source = "createdAt", target = "createdAt", dateFormat = "yyyy-MM-dd HH:mm:ss")
+	@Mapping(source = "parentComment.id", target = "parentId")
 	CommentDTO toCommentDTO(Comment comment);
 
 	@Mapping(target = "id", ignore = true)
 	@Mapping(target = "createdAt", ignore = true)
+	@Mapping(target = "parentComment", ignore = true)
 	Comment createComment(CommentRequest commentRequest);
 }

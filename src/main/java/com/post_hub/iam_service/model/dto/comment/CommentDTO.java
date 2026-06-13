@@ -14,6 +14,7 @@ import java.util.List;
 public class CommentDTO implements Serializable {
 	private Integer id;
 	private String content;
+	private Integer parentId;
 	private List<CommentLikeDTO> likes;
 	private Long likesCount;
 	private String createdAt;

@@ -19,6 +19,7 @@ public enum ApiErrorMessage {
 	POST_LIKE_NOT_FOUND("Like for post with ID: %s was not found for this user"),
 
 	COMMENT_NOT_FOUND_BY_ID("Comment wit ID: %s was not found"),
+	PARENT_COMMENT_NOT_FOUND_BY_ID("Parent comment wit ID: %s was not found"),
 
 	ROLE_NOT_FOUND("Role with name: %s was not found"),
 	EMAIL_NOT_FOUND("Email: %s was not found"),

@@ -2,9 +2,7 @@ package com.post_hub.iam_service.controller;
 
 import com.post_hub.iam_service.model.constants.ApiLogMessage;
 import com.post_hub.iam_service.model.dto.comment.CommentDTO;
-import com.post_hub.iam_service.model.dto.post.PostDTO;
 import com.post_hub.iam_service.model.request.comment.CommentRequest;
-import com.post_hub.iam_service.model.request.post.UpdatePostRequest;
 import com.post_hub.iam_service.model.respsonse.IamResponse;
 import com.post_hub.iam_service.model.respsonse.PaginationResponse;
 import com.post_hub.iam_service.service.CommentService;
