@@ -211,6 +211,7 @@ public class PostServiceImpl implements PostService {
 		post.setPreviewComments(comments.getContent());
 
 		commentEnricher.enrichWithLikes(comments.getContent(), 3);
+		commentEnricher.enrichWithRepliesCount(post.getId(), comments.getContent(), 3);
 	}
 
 	private PaginationResponse<PostSearchDTO> buildPostsPaginationResponse(

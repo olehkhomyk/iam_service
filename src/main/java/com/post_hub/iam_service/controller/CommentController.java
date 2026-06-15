@@ -53,6 +53,20 @@ public class CommentController {
 		return ResponseEntity.ok(result);
 	}
 
+	@GetMapping("/{id}/replies")
+	public ResponseEntity<IamResponse<PaginationResponse<CommentDTO>>> getByReplies(
+			@PathVariable(name = "postId") Integer postId,
+			@PathVariable(name = "id") Integer id,
+			@RequestParam(name = "page", defaultValue = "0") int page,
+			@RequestParam(name = "limit", defaultValue = "10") int limit
+	) {
+		log.trace(ApiLogMessage.NAME_OF_CURRENT_METHOD.getValue(), ApiUtils.getMethodName());
+		Pageable pageable = PageRequest.of(page, limit);
+
+		IamResponse<PaginationResponse<CommentDTO>> result = commentService.getAllByPostIdAndParentId(postId, id, pageable);
+		return ResponseEntity.ok(result);
+	}
+
 	@GetMapping("/{id}")
 	public ResponseEntity<IamResponse<CommentDTO>> getById(
 			@PathVariable(name = "postId") Integer postId,

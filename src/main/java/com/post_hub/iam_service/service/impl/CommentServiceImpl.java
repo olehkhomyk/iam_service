@@ -5,7 +5,6 @@ import com.post_hub.iam_service.mapper.CommentLikeMapper;
 import com.post_hub.iam_service.mapper.CommentMapper;
 import com.post_hub.iam_service.model.constants.ApiErrorMessage;
 import com.post_hub.iam_service.model.dto.comment.CommentDTO;
-import com.post_hub.iam_service.model.dto.commentLike.CommentLikeDTO;
 import com.post_hub.iam_service.model.entity.*;
 import com.post_hub.iam_service.model.exception.DataExistException;
 import com.post_hub.iam_service.model.exception.NotFoundException;
@@ -23,7 +22,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -106,12 +104,26 @@ public class CommentServiceImpl implements CommentService {
 	public IamResponse<PaginationResponse<CommentDTO>> getAllByPostId(@NotNull Integer postId, @NotNull Pageable pageable) {
 		validatePostExistence(postId);
 
-		Page<CommentDTO> comments = commentRepository
+		Page<CommentDTO> rootComments = commentRepository
 				.findAllByPostIdAndParentCommentIsNullOrderByCreatedAtDesc(postId, pageable)
 				.map(commentMapper::toCommentDTO);
-		commentEnricher.enrichWithLikes(comments.getContent(), 3);
+		commentEnricher.enrichWithLikes(rootComments.getContent(), 3);
+		commentEnricher.enrichWithRepliesCount(postId, rootComments.getContent(), 3);
 
-		PaginationResponse<CommentDTO> paginationResponse = buildCommetsPaginationResponse(comments, pageable);
+		PaginationResponse<CommentDTO> paginationResponse = buildCommetsPaginationResponse(rootComments, pageable);
+
+		return IamResponse.createSuccess(paginationResponse);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public IamResponse<PaginationResponse<CommentDTO>> getAllByPostIdAndParentId(@NotNull Integer postId, @NotNull Integer parentId, @NotNull Pageable pageable) {
+		Page<CommentDTO> childComments = commentRepository
+				.findAllByPostIdAndParentCommentIdOrderByCreatedAtDesc(postId, parentId, pageable)
+				.map(commentMapper::toCommentDTO);
+		commentEnricher.enrichWithLikes(childComments.getContent(), 3);
+
+		PaginationResponse<CommentDTO> paginationResponse = buildCommetsPaginationResponse(childComments, pageable);
 
 		return IamResponse.createSuccess(paginationResponse);
 	}

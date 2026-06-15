@@ -15,8 +15,12 @@ public class CommentDTO implements Serializable {
 	private Integer id;
 	private String content;
 	private Integer parentId;
-	private List<CommentLikeDTO> likes;
+
+	private Long repliesCount;
+
 	private Long likesCount;
+	private List<CommentLikeDTO> likes;
+
 	private String createdAt;
 	private String createdBy;
 }

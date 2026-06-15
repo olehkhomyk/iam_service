@@ -6,6 +6,7 @@ import com.post_hub.iam_service.model.respsonse.IamResponse;
 import com.post_hub.iam_service.model.respsonse.PaginationResponse;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Pageable;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 
@@ -17,6 +18,8 @@ public interface CommentService {
 	IamResponse<ArrayList<CommentDTO>> getByPostId(@NotNull Integer postId);
 
 	IamResponse<PaginationResponse<CommentDTO>> getAllByPostId(@NotNull Integer postId, Pageable pageable);
+
+	IamResponse<PaginationResponse<CommentDTO>> getAllByPostIdAndParentId(@NotNull Integer postId, @NotNull Integer parentId, @NotNull Pageable pageable);
 
 	void deleteById(@NotNull Integer postId, @NotNull Integer id);
 
