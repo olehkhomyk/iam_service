@@ -2,7 +2,9 @@ package com.post_hub.iam_service.service.impl;
 
 import com.post_hub.iam_service.mapper.UserMapper;
 import com.post_hub.iam_service.model.constants.ApiErrorMessage;
+import com.post_hub.iam_service.model.dto.kafka.UserEvent;
 import com.post_hub.iam_service.model.entity.Role;
+import com.post_hub.iam_service.model.enums.EventType;
 import com.post_hub.iam_service.model.exception.DataExistException;
 import com.post_hub.iam_service.model.exception.InvalidPasswordException;
 import com.post_hub.iam_service.model.exception.NotFoundException;
@@ -18,6 +20,7 @@ import com.post_hub.iam_service.repository.UserRepository;
 import com.post_hub.iam_service.security.JwtTokenProvider;
 import com.post_hub.iam_service.security.validatiton.AccessValidator;
 import com.post_hub.iam_service.service.AuthService;
+import com.post_hub.iam_service.service.KafkaEventPublisher;
 import com.post_hub.iam_service.service.RefreshTokenService;
 import com.post_hub.iam_service.service.model.IamServiceUserRole;
 import com.post_hub.iam_service.utils.PasswordUtils;
@@ -30,6 +33,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -45,6 +49,7 @@ public class AuthServiceImpl implements AuthService {
 	private final RoleRepository roleRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final AccessValidator accessValidator;
+	private final KafkaEventPublisher kafkaEventPublisher;
 
 	@Override
 	public IamResponse<UserProfileDTO> login(@NotNull LoginRequest request) {
@@ -62,6 +67,15 @@ public class AuthServiceImpl implements AuthService {
 		RefreshToken refreshToken = refreshTokenService.generateOrUpdateRefreshToken(user);
 		String token = jwtTokenProvider.generateToken(user);
 		UserProfileDTO userProfileDTO = userMapper.toUserProfileDTO(user, token, refreshToken.getToken());
+
+		kafkaEventPublisher.publish(
+				UserEvent.builder()
+						.eventType(EventType.USER_LOGGED_IN)
+						.timestamp(LocalDateTime.now())
+						.userId(user.getId())
+						.email(user.getEmail())
+						.build()
+		);
 
 		return IamResponse.createSuccessfulWithNewToken(userProfileDTO);
 	}
@@ -98,6 +112,15 @@ public class AuthServiceImpl implements AuthService {
 		RefreshToken refreshToken = refreshTokenService.generateOrUpdateRefreshToken(newUser);
 		String token = jwtTokenProvider.generateToken(newUser);
 		UserProfileDTO userProfileDTO = userMapper.toUserProfileDTO(newUser, token, refreshToken.getToken());
+
+		kafkaEventPublisher.publish(
+				UserEvent.builder()
+						.eventType(EventType.USER_REGISTERED)
+						.timestamp(LocalDateTime.now())
+						.userId(newUser.getId())
+						.email(newUser.getEmail())
+						.build()
+		);
 
 		return IamResponse.createSuccessfulWithNewToken(userProfileDTO);
 	}
