@@ -2,11 +2,9 @@ package com.post_hub.iam_service.service.impl;
 
 import com.post_hub.iam_service.mapper.UserMapper;
 import com.post_hub.iam_service.model.constants.ApiErrorMessage;
-import com.post_hub.iam_service.model.dto.kafka.UserEvent;
+import com.post_hub.iam_service.model.dto.kafka.ActionEvent;
 import com.post_hub.iam_service.model.entity.Role;
 import com.post_hub.iam_service.model.enums.EventType;
-import com.post_hub.iam_service.model.exception.DataExistException;
-import com.post_hub.iam_service.model.exception.InvalidPasswordException;
 import com.post_hub.iam_service.model.exception.NotFoundException;
 import com.post_hub.iam_service.model.request.user.LoginRequest;
 import com.post_hub.iam_service.model.dto.user.UserProfileDTO;
@@ -23,7 +21,6 @@ import com.post_hub.iam_service.service.AuthService;
 import com.post_hub.iam_service.service.KafkaEventPublisher;
 import com.post_hub.iam_service.service.RefreshTokenService;
 import com.post_hub.iam_service.service.model.IamServiceUserRole;
-import com.post_hub.iam_service.utils.PasswordUtils;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -69,7 +66,7 @@ public class AuthServiceImpl implements AuthService {
 		UserProfileDTO userProfileDTO = userMapper.toUserProfileDTO(user, token, refreshToken.getToken());
 
 		kafkaEventPublisher.publish(
-				UserEvent.builder()
+				ActionEvent.builder()
 						.eventType(EventType.USER_LOGGED_IN)
 						.timestamp(LocalDateTime.now())
 						.userId(user.getId())
@@ -114,7 +111,7 @@ public class AuthServiceImpl implements AuthService {
 		UserProfileDTO userProfileDTO = userMapper.toUserProfileDTO(newUser, token, refreshToken.getToken());
 
 		kafkaEventPublisher.publish(
-				UserEvent.builder()
+				ActionEvent.builder()
 						.eventType(EventType.USER_REGISTERED)
 						.timestamp(LocalDateTime.now())
 						.userId(newUser.getId())

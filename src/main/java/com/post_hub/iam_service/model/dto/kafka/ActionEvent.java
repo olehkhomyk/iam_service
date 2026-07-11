@@ -9,10 +9,11 @@ import java.util.Map;
 
 @Data
 @Builder
-public class UserEvent {
+public class ActionEvent {
 	private EventType eventType;
 	private LocalDateTime timestamp;
 	private Integer userId;
 	private String email;
+	private String service;
 	private Map<String, Object> details;
 }
