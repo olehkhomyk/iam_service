@@ -2,6 +2,7 @@ package com.post_hub.iam_service.service.impl;
 
 import com.post_hub.iam_service.mapper.UserMapper;
 import com.post_hub.iam_service.model.constants.ApiErrorMessage;
+import com.post_hub.iam_service.model.constants.ApiKafkaMessage;
 import com.post_hub.iam_service.model.dto.kafka.ActionEvent;
 import com.post_hub.iam_service.model.entity.Role;
 import com.post_hub.iam_service.model.enums.EventType;
@@ -71,6 +72,7 @@ public class AuthServiceImpl implements AuthService {
 						.timestamp(LocalDateTime.now())
 						.userId(user.getId())
 						.email(user.getEmail())
+						.message(ApiKafkaMessage.USER_LOGGED_IN.format(user.getEmail()))
 						.build()
 		);
 
@@ -116,6 +118,7 @@ public class AuthServiceImpl implements AuthService {
 						.timestamp(LocalDateTime.now())
 						.userId(newUser.getId())
 						.email(newUser.getEmail())
+						.message(ApiKafkaMessage.USER_REGISTERED.format(newUser.getEmail()))
 						.build()
 		);
 

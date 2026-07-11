@@ -15,5 +15,6 @@ public class ActionEvent {
 	private Integer userId;
 	private String email;
 	private String service;
+	private String message;
 	private Map<String, Object> details;
 }
